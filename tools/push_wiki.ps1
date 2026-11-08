@@ -18,7 +18,10 @@ param(
     [switch]$Clean
 )
 
-$ErrorActionPreference = "Stop"
+# Предупреждения git (например, про перевод строк LF -> CRLF) приходят в поток
+# ошибок; с режимом Stop первый же такой предупреждение обрывает публикацию,
+# хотя ничего не сломано. Поэтому ошибки проверяются по коду возврата.
+$ErrorActionPreference = "Continue"
 
 $owner    = "1997yyyy"
 $repo     = "Human-Machine-Interface-Design-LAB4"
@@ -128,6 +131,11 @@ $msgPath = Join-Path $env:TEMP "lab4-wiki-msg.txt"
 
 Push-Location $tmp
 git add -A
+if ($LASTEXITCODE -ne 0) {
+    Pop-Location
+    Write-Host "Не удалось проиндексировать страницы вики." -ForegroundColor Red
+    exit 1
+}
 $staged = git diff --cached --name-only
 if (-not $staged) {
     Pop-Location
