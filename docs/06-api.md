@@ -111,8 +111,9 @@
 
 Контракт проверен не только валидатором, но и запущенным Mock-сервером
 (Prism 5, поднимается из того же `api/openapi.yaml`). Прогон из восьми сценариев
-проходит полностью, протокол запросов и ответов — `api/mock/transcript.md`,
-инструкция — `api/mock/README.md`.
+проходит полностью. Протокол запросов и ответов —
+[api/mock/transcript.md](https://1997yyyy.github.io/Human-Machine-Interface-Design-LAB4/api/mock/transcript.html), инструкция запуска —
+[api/mock/README.md](https://github.com/1997yyyy/Human-Machine-Interface-Design-LAB4/blob/main/api/mock/README.md).
 
 | Сценарий | Код | Тело |
 |---|---|---|
@@ -127,7 +128,8 @@
 
 Конкретный ответ выбирается заголовком `Prefer: code=<код>`, поэтому проверка
 воспроизводима: один и тот же запрос всегда даёт один и тот же код и тело.
-Готовые запросы лежат в `api/mock/campus-events.postman_collection.json` —
+Готовые запросы лежат в
+[campus-events.postman_collection.json](https://github.com/1997yyyy/Human-Machine-Interface-Design-LAB4/blob/main/api/mock/campus-events.postman_collection.json) —
 коллекция импортируется и в Bruno, и в Postman.
 
 Побочный результат прогона: Mock-сервер показал, что общий компонент `Validation`
