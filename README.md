@@ -137,6 +137,7 @@ LAB4/
 │  ├─ server.py               MCP-сервер: 3 инструмента, 2 ресурса, 1 промпт
 │  ├─ make_mock_db.py         сборка mock-базы SQLite
 │  ├─ test_mcp.py             проверка без LLM-клиента (10 сценариев)
+│  ├─ inspector-cli.md        протокол проверки через официальный MCP Inspector
 │  ├─ campus.db               mock-база (генерируется)
 │  └─ README.md               инструкция по развёртыванию MCP-сервера
 ├─ docs/                      страницы вики

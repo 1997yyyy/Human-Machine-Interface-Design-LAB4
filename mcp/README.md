@@ -76,6 +76,8 @@ python server.py
 
 ### MCP Inspector (без ассистента)
 
+Web-панель:
+
 ```bash
 npx @modelcontextprotocol/inspector python mcp/server.py
 ```
@@ -83,6 +85,19 @@ npx @modelcontextprotocol/inspector python mcp/server.py
 В браузере открывается панель: вкладка *Tools* показывает три инструмента со
 схемами, *Resources* — каталог и записи, *Prompts* — шаблон. Кнопка *Call*
 отправляет запрос и показывает JSON-ответ.
+
+Тот же Inspector в режиме CLI — без браузера, весь обмен протоколом виден в
+терминале:
+
+```bash
+npx -y @modelcontextprotocol/inspector --cli python mcp/server.py --method tools/list
+npx -y @modelcontextprotocol/inspector --cli python mcp/server.py \
+  --method tools/call --tool-name create_registration \
+  --tool-arg session_id=s-0002 --tool-arg user_id=u-0006
+```
+
+Протокол прогона через Inspector, включая проверку идемпотентности отметки
+билета, — [inspector-cli.md](inspector-cli.md).
 
 ## 3. Примеры запросов от лица пользователя
 
