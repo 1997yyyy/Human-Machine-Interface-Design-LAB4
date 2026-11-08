@@ -1,0 +1,566 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Физическая модель базы данных — Campus Events</title>
+<style>
+  :root{
+    --bg:#fbfbf9; --card:#ffffff; --ink:#1b1b19; --muted:#6b6b66;
+    --line:#e2e1da; --accent:#0f6e56; --accent-soft:#e1f5ee;
+    --get:#0f6e56; --post:#1f5fa8; --put:#8a5a00; --patch:#7a3fa0; --delete:#a33a2c;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--ink);
+       font:16px/1.65 -apple-system,"Segoe UI",Roboto,Helvetica,Arial,sans-serif}
+  .wrap{max-width:880px;margin:0 auto;padding:56px 24px 80px}
+  header{border-bottom:1px solid var(--line);padding-bottom:28px;margin-bottom:28px}
+  .eyebrow{font-size:13px;letter-spacing:.08em;text-transform:uppercase;color:var(--accent)}
+  h1{font-size:32px;line-height:1.2;margin:10px 0 12px;font-weight:600}
+  .lead{color:var(--muted);margin:0;max-width:64ch}
+  .stats{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin:28px 0 10px}
+  .stat{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:16px}
+  .stat b{display:block;font-size:26px;font-weight:600;line-height:1.1}
+  .stat span{font-size:13px;color:var(--muted)}
+  h2{font-size:15px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);
+     margin:44px 0 14px;font-weight:500}
+  a{color:var(--accent)}
+  code{background:#f1efe8;padding:1px 5px;border-radius:4px;font-size:13px}
+  .op{background:var(--card);border:1px solid var(--line);border-radius:12px;
+      padding:16px 20px;margin-bottom:10px}
+  .op .head{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:6px}
+  .m{font:600 11px/1 ui-monospace,SFMono-Regular,Menlo,monospace;letter-spacing:.06em;
+     color:#fff;padding:5px 8px;border-radius:5px}
+  .m.get{background:var(--get)} .m.post{background:var(--post)} .m.put{background:var(--put)}
+  .m.patch{background:var(--patch)} .m.delete{background:var(--delete)}
+  .op .path{font:600 15px/1.3 ui-monospace,SFMono-Regular,Menlo,monospace}
+  .op .sum{margin:0 0 4px;font-weight:600}
+  .op .desc{margin:0;color:var(--muted);font-size:14px}
+  .op .oid{font-size:12px;color:var(--muted)}
+  table{width:100%;border-collapse:collapse;font-size:14px;background:var(--card);
+        border:1px solid var(--line);border-radius:12px;overflow:hidden;margin:10px 0 0}
+  th,td{text-align:left;padding:9px 12px;border-bottom:1px solid var(--line);vertical-align:top}
+  th{background:var(--accent-soft);font-weight:600;font-size:13px}
+  tr:last-child td{border-bottom:none}
+  .req{color:#a33a2c;font-size:12px}
+  details{background:var(--card);border:1px solid var(--line);border-radius:12px;
+          padding:12px 18px;margin-bottom:8px}
+  details>summary{cursor:pointer;font-weight:600;font-size:15px}
+  details[open]>summary{margin-bottom:8px}
+  pre{background:#1f1f1d;color:#e9e6dc;padding:16px 18px;border-radius:12px;overflow:auto;
+      font:12.5px/1.55 ui-monospace,SFMono-Regular,Menlo,monospace}
+  .methods{display:flex;gap:6px;flex-wrap:wrap;margin-top:8px}
+  footer{margin-top:52px;padding-top:20px;border-top:1px solid var(--line);
+         color:var(--muted);font-size:13px}
+  @media(max-width:640px){.stats{grid-template-columns:repeat(2,1fr)}h1{font-size:26px}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div class="eyebrow">ПЧМИ · ЛР № 4 · задание 2 · PostgreSQL 16</div>
+    <h1>Физическая модель базы данных — Campus Events</h1>
+    <p class="lead">14 таблиц, 13 перечислений, 103 поля, 3 триггера-инварианта. Ограничения проверены на работающей СУБД скриптом db/verify.sql — 15 проверок, все пройдены.</p>
+  </header>
+  <div class="stats"><div class="stat"><b>14</b><span>таблиц</span></div><div class="stat"><b>13</b><span>перечислений</span></div><div class="stat"><b>103</b><span>полей</span></div><div class="stat"><b>3</b><span>триггера</span></div></div>
+  <p class="oid">Исходники отдаются без <code>charset</code>, поэтому в браузере они выглядят искажённо. Ниже — та же схема в читаемом виде: <a href="schema.sql">schema.sql</a>, <a href="seed.sql">seed.sql</a>.</p><h2>Состав модели</h2><table><tr><th>№</th><th>Таблица</th><th>Назначение</th><th>Полей</th><th>Первичный ключ</th><th>Внешних ключей</th></tr><tr><td>1</td><td><code>club</code></td><td><b>Клуб</b><br>Организационная единица: факультетский клуб, от имени которого публикуются мероприятия.</td><td>6</td><td><code>id</code></td><td>—</td></tr><tr><td>2</td><td><code>category</code></td><td><b>Категория</b><br>Справочник тематик мероприятия; код используется во внешних ссылках и фильтрах.</td><td>3</td><td><code>code</code></td><td>—</td></tr><tr><td>3</td><td><code>app_user</code></td><td><b>Пользователь</b><br>Учётная запись, создаваемая автоматически при первом входе через CAS; пароль не хранится.</td><td>9</td><td><code>id</code></td><td>—</td></tr><tr><td>4</td><td><code>event</code></td><td><b>Мероприятие</b><br>Афишная единица: то, что видит студент в ленте и на что ведётся запись.</td><td>14</td><td><code>id</code></td><td>3</td></tr><tr><td>5</td><td><code>session</code></td><td><b>Сессия</b><br>Конкретная дата, время и место проведения; запись ведётся на сессию, а не на мероприятие.</td><td>10</td><td><code>id</code></td><td>1</td></tr><tr><td>6</td><td><code>membership</code></td><td><b>Членство в клубе</b><br>Связь «пользователь — клуб» с должностью; определяет право публиковать от имени клуба.</td><td>5</td><td><code>user_id</code></td><td>2</td></tr><tr><td>7</td><td><code>registration</code></td><td><b>Регистрация</b><br>Факт записи пользователя на сессию; одна активная запись на пару «пользователь — сессия».</td><td>9</td><td><code>id</code></td><td>2</td></tr><tr><td>8</td><td><code>ticket</code></td><td><b>Билет</b><br>Электронный билет 1:1 к регистрации; содержит подпись, но не содержит персональных данных.</td><td>7</td><td><code>id</code></td><td>1</td></tr><tr><td>9</td><td><code>seat_offer</code></td><td><b>Предложение места</b><br>Приглашение из листа ожидания с ограниченным сроком; отделено от регистрации, чтобы у места было одно активное предложение.</td><td>6</td><td><code>id</code></td><td>2</td></tr><tr><td>10</td><td><code>event_version</code></td><td><b>Версия мероприятия</b><br>Снимок того, что ушло на модерацию; позволяет показать администратору именно рассмотренный вариант.</td><td>6</td><td><code>id</code></td><td>2</td></tr><tr><td>11</td><td><code>moderation_request</code></td><td><b>Заявка на модерацию</b><br>Очередь администратора; ссылается на конкретную версию мероприятия.</td><td>6</td><td><code>id</code></td><td>2</td></tr><tr><td>12</td><td><code>decision</code></td><td><b>Решение по заявке</b><br>Неизменяемая запись о решении администратора; вместе с заявкой образует журнал модерации.</td><td>6</td><td><code>id</code></td><td>2</td></tr><tr><td>13</td><td><code>review</code></td><td><b>Отзыв</b><br>Оценка посещённого мероприятия; один отзыв на пару «мероприятие — пользователь».</td><td>7</td><td><code>id</code></td><td>2</td></tr><tr><td>14</td><td><code>notification</code></td><td><b>Уведомление</b><br>Запланированное или отправленное сообщение; недоставленный push дублируется по e-mail.</td><td>9</td><td><code>id</code></td><td>2</td></tr></table><h2>Перечисления</h2><table><tr><th>Перечисление</th><th>Значений</th><th>Допустимые значения</th></tr><tr><td><code>event_status</code></td><td>6</td><td>Черновик · На модерации · Опубликовано · Отклонено · Отменено · Завершено</td></tr><tr><td><code>publish_mode</code></td><td>2</td><td>Свободный · С утверждением</td></tr><tr><td><code>user_role</code></td><td>4</td><td>Гость · Студент · Организатор · Администратор</td></tr><tr><td><code>club_position</code></td><td>3</td><td>Руководитель · Заместитель · Член</td></tr><tr><td><code>registration_status</code></td><td>5</td><td>Записан · В листе ожидания · Отменено · Посетил · Неявка</td></tr><tr><td><code>reg_source</code></td><td>3</td><td>Приложение · Веб · Регистрация на месте</td></tr><tr><td><code>ticket_status</code></td><td>3</td><td>Действителен · Использован · Отозван</td></tr><tr><td><code>offer_status</code></td><td>3</td><td>Выдано · Принято · Истекло</td></tr><tr><td><code>request_status</code></td><td>3</td><td>На рассмотрении · Утверждено · Возвращено</td></tr><tr><td><code>decision_type</code></td><td>2</td><td>Утвердить · Вернуть</td></tr><tr><td><code>review_status</code></td><td>3</td><td>На проверке · Опубликован · Скрыт</td></tr><tr><td><code>notification_type</code></td><td>5</td><td>Подтверждение · Напоминание 24 ч · Напоминание 2 ч · Приглашение из очереди · Отмена</td></tr><tr><td><code>channel</code></td><td>3</td><td>Push · Email · Оба</td></tr></table><h2>DDL (db/schema.sql)</h2><pre>-- Campus Events: физическая модель данных (PostgreSQL 15+)
+-- Сгенерировано tools/gen_db.py из единой модели; править gen_db.py, а не этот файл.
+
+BEGIN;
+
+-- 1. Перечисления
+CREATE TYPE event_status AS ENUM (
+    &#x27;Черновик&#x27;,
+    &#x27;На модерации&#x27;,
+    &#x27;Опубликовано&#x27;,
+    &#x27;Отклонено&#x27;,
+    &#x27;Отменено&#x27;,
+    &#x27;Завершено&#x27;
+);
+CREATE TYPE publish_mode AS ENUM (
+    &#x27;Свободный&#x27;,
+    &#x27;С утверждением&#x27;
+);
+CREATE TYPE user_role AS ENUM (
+    &#x27;Гость&#x27;,
+    &#x27;Студент&#x27;,
+    &#x27;Организатор&#x27;,
+    &#x27;Администратор&#x27;
+);
+CREATE TYPE club_position AS ENUM (
+    &#x27;Руководитель&#x27;,
+    &#x27;Заместитель&#x27;,
+    &#x27;Член&#x27;
+);
+CREATE TYPE registration_status AS ENUM (
+    &#x27;Записан&#x27;,
+    &#x27;В листе ожидания&#x27;,
+    &#x27;Отменено&#x27;,
+    &#x27;Посетил&#x27;,
+    &#x27;Неявка&#x27;
+);
+CREATE TYPE reg_source AS ENUM (
+    &#x27;Приложение&#x27;,
+    &#x27;Веб&#x27;,
+    &#x27;Регистрация на месте&#x27;
+);
+CREATE TYPE ticket_status AS ENUM (
+    &#x27;Действителен&#x27;,
+    &#x27;Использован&#x27;,
+    &#x27;Отозван&#x27;
+);
+CREATE TYPE offer_status AS ENUM (
+    &#x27;Выдано&#x27;,
+    &#x27;Принято&#x27;,
+    &#x27;Истекло&#x27;
+);
+CREATE TYPE request_status AS ENUM (
+    &#x27;На рассмотрении&#x27;,
+    &#x27;Утверждено&#x27;,
+    &#x27;Возвращено&#x27;
+);
+CREATE TYPE decision_type AS ENUM (
+    &#x27;Утвердить&#x27;,
+    &#x27;Вернуть&#x27;
+);
+CREATE TYPE review_status AS ENUM (
+    &#x27;На проверке&#x27;,
+    &#x27;Опубликован&#x27;,
+    &#x27;Скрыт&#x27;
+);
+CREATE TYPE notification_type AS ENUM (
+    &#x27;Подтверждение&#x27;,
+    &#x27;Напоминание 24 ч&#x27;,
+    &#x27;Напоминание 2 ч&#x27;,
+    &#x27;Приглашение из очереди&#x27;,
+    &#x27;Отмена&#x27;
+);
+CREATE TYPE channel AS ENUM (
+    &#x27;Push&#x27;,
+    &#x27;Email&#x27;,
+    &#x27;Оба&#x27;
+);
+
+-- 2. Таблицы
+
+CREATE TABLE club (
+    id                uuid DEFAULT gen_random_uuid() NOT NULL,
+    name              varchar(120) NOT NULL,
+    description       text,
+    logo_url          varchar(255),
+    is_active         boolean DEFAULT true NOT NULL,
+    created_at        timestamptz DEFAULT now() NOT NULL,
+    PRIMARY KEY (id)
+);
+
+CREATE TABLE category (
+    code              varchar(32) NOT NULL,
+    name              varchar(80) NOT NULL,
+    sort_order        smallint NOT NULL,
+    PRIMARY KEY (code)
+);
+
+CREATE TABLE app_user (
+    id                uuid DEFAULT gen_random_uuid() NOT NULL,
+    cas_login         varchar(64) NOT NULL,
+    full_name         varchar(160) NOT NULL,
+    email             varchar(160) CHECK (email IS NULL OR email LIKE &#x27;%@%&#x27;),
+    faculty           varchar(120),
+    study_group       varchar(40),
+    role              user_role DEFAULT &#x27;Студент&#x27; NOT NULL,
+    is_active         boolean DEFAULT true NOT NULL,
+    created_at        timestamptz DEFAULT now() NOT NULL,
+    PRIMARY KEY (id),
+    UNIQUE (cas_login)
+);
+
+CREATE TABLE event (
+    id                uuid DEFAULT gen_random_uuid() NOT NULL,
+    club_id           uuid NOT NULL,
+    category_code     varchar(32) NOT NULL,
+    title             varchar(200) NOT NULL CHECK (char_length(title) &gt;= 5),
+    description       text,
+    poster_url        varchar(255),
+    status            event_status DEFAULT &#x27;Черновик&#x27; NOT NULL,
+    publish_mode      publish_mode DEFAULT &#x27;Свободный&#x27; NOT NULL,
+    capacity          integer CHECK (capacity IS NULL OR capacity &gt; 0),
+    owner_id          uuid NOT NULL,
+    created_at        timestamptz DEFAULT now() NOT NULL,
+    published_at      timestamptz,
+    cancelled_at      timestamptz,
+    cancel_reason     varchar(300),
+    PRIMARY KEY (id),
+    FOREIGN KEY (club_id) REFERENCES club(id),
+    FOREIGN KEY (category_code) REFERENCES category(code),
+    FOREIGN KEY (owner_id) REFERENCES app_user(id),
+    CONSTRAINT event_cancel_chk CHECK (cancelled_at IS NULL OR status = &#x27;Отменено&#x27;)
+);
+
+CREATE TABLE session (
+    id                uuid DEFAULT gen_random_uuid() NOT NULL,
+    event_id          uuid NOT NULL,
+    starts_at         timestamptz NOT NULL,
+    ends_at           timestamptz NOT NULL,
+    building          varchar(120) NOT NULL,
+    room              varchar(60),
+    capacity          integer NOT NULL CHECK (capacity &gt;= 1),
+    taken             integer DEFAULT 0 NOT NULL,
+    qr_key_version    smallint DEFAULT 1 NOT NULL,
+    created_at        timestamptz DEFAULT now() NOT NULL,
+    PRIMARY KEY (id),
+    FOREIGN KEY (event_id) REFERENCES event(id),
+    CONSTRAINT session_interval_chk CHECK (ends_at &gt; starts_at),
+    CONSTRAINT session_seats_chk CHECK (taken &gt;= 0 AND taken &lt;= capacity),
+    CONSTRAINT session_key_ver_chk CHECK (qr_key_version &gt;= 1)
+);
+
+CREATE TABLE membership (
+    user_id           uuid NOT NULL,
+    club_id           uuid NOT NULL,
+    position          club_position DEFAULT &#x27;Член&#x27; NOT NULL,
+    from_date         date DEFAULT current_date NOT NULL,
+    to_date           date,
+    PRIMARY KEY (user_id, club_id),
+    FOREIGN KEY (user_id) REFERENCES app_user(id),
+    FOREIGN KEY (club_id) REFERENCES club(id),
+    CONSTRAINT membership_period_chk CHECK (to_date IS NULL OR to_date &gt;= from_date)
+);
+
+CREATE TABLE registration (
+    id                uuid DEFAULT gen_random_uuid() NOT NULL,
+    session_id        uuid NOT NULL,
+    user_id           uuid NOT NULL,
+    status            registration_status DEFAULT &#x27;Записан&#x27; NOT NULL,
+    waitlist_position integer CHECK (waitlist_position IS NULL OR waitlist_position &gt; 0),
+    source            reg_source DEFAULT &#x27;Приложение&#x27; NOT NULL,
+    created_at        timestamptz DEFAULT now() NOT NULL,
+    cancelled_at      timestamptz,
+    attended_at       timestamptz,
+    PRIMARY KEY (id),
+    FOREIGN KEY (session_id) REFERENCES session(id),
+    FOREIGN KEY (user_id) REFERENCES app_user(id),
+    CONSTRAINT reg_waitlist_chk CHECK (status &lt;&gt; &#x27;В листе ожидания&#x27; OR waitlist_position IS NOT NULL),
+    CONSTRAINT reg_cancel_chk CHECK (status &lt;&gt; &#x27;Отменено&#x27; OR cancelled_at IS NOT NULL)
+);
+
+CREATE TABLE ticket (
+    id                uuid DEFAULT gen_random_uuid() NOT NULL,
+    registration_id   uuid NOT NULL,
+    qr_payload        varchar(300) NOT NULL,
+    qr_signature      varchar(200) NOT NULL,
+    status            ticket_status DEFAULT &#x27;Действителен&#x27; NOT NULL,
+    issued_at         timestamptz DEFAULT now() NOT NULL,
+    used_at           timestamptz,
+    PRIMARY KEY (id),
+    UNIQUE (registration_id),
+    UNIQUE (qr_payload),
+    FOREIGN KEY (registration_id) REFERENCES registration(id),
+    CONSTRAINT ticket_used_chk CHECK (status &lt;&gt; &#x27;Использован&#x27; OR used_at IS NOT NULL)
+);
+
+CREATE TABLE seat_offer (
+    id                uuid DEFAULT gen_random_uuid() NOT NULL,
+    session_id        uuid NOT NULL,
+    registration_id   uuid NOT NULL,
+    issued_at         timestamptz DEFAULT now() NOT NULL,
+    expires_at        timestamptz NOT NULL,
+    status            offer_status DEFAULT &#x27;Выдано&#x27; NOT NULL,
+    PRIMARY KEY (id),
+    FOREIGN KEY (session_id) REFERENCES session(id),
+    FOREIGN KEY (registration_id) REFERENCES registration(id),
+    CONSTRAINT offer_interval_chk CHECK (expires_at &gt; issued_at)
+);
+
+CREATE TABLE event_version (
+    id                uuid DEFAULT gen_random_uuid() NOT NULL,
+    event_id          uuid NOT NULL,
+    number            integer NOT NULL CHECK (number &gt;= 1),
+    snapshot          jsonb NOT NULL,
+    author_id         uuid NOT NULL,
+    created_at        timestamptz DEFAULT now() NOT NULL,
+    PRIMARY KEY (id),
+    FOREIGN KEY (event_id) REFERENCES event(id),
+    FOREIGN KEY (author_id) REFERENCES app_user(id)
+);
+
+CREATE TABLE moderation_request (
+    id                uuid DEFAULT gen_random_uuid() NOT NULL,
+    event_id          uuid NOT NULL,
+    version_id        uuid NOT NULL,
+    submitted_at      timestamptz DEFAULT now() NOT NULL,
+    due_at            timestamptz NOT NULL,
+    status            request_status DEFAULT &#x27;На рассмотрении&#x27; NOT NULL,
+    PRIMARY KEY (id),
+    FOREIGN KEY (event_id) REFERENCES event(id),
+    FOREIGN KEY (version_id) REFERENCES event_version(id),
+    CONSTRAINT request_due_chk CHECK (due_at &gt; submitted_at)
+);
+
+CREATE TABLE decision (
+    id                uuid DEFAULT gen_random_uuid() NOT NULL,
+    request_id        uuid NOT NULL,
+    type              decision_type NOT NULL,
+    comment           text CHECK (comment IS NULL OR char_length(comment) &gt;= 10),
+    admin_id          uuid NOT NULL,
+    decided_at        timestamptz DEFAULT now() NOT NULL,
+    PRIMARY KEY (id),
+    FOREIGN KEY (request_id) REFERENCES moderation_request(id),
+    FOREIGN KEY (admin_id) REFERENCES app_user(id),
+    CONSTRAINT decision_comment_chk CHECK (type &lt;&gt; &#x27;Вернуть&#x27; OR (comment IS NOT NULL AND char_length(comment) &gt;= 10))
+);
+
+CREATE TABLE review (
+    id                uuid DEFAULT gen_random_uuid() NOT NULL,
+    event_id          uuid NOT NULL,
+    user_id           uuid NOT NULL,
+    rating            smallint NOT NULL CHECK (rating BETWEEN 1 AND 5),
+    text              text,
+    status            review_status DEFAULT &#x27;На проверке&#x27; NOT NULL,
+    created_at        timestamptz DEFAULT now() NOT NULL,
+    PRIMARY KEY (id),
+    FOREIGN KEY (event_id) REFERENCES event(id),
+    FOREIGN KEY (user_id) REFERENCES app_user(id)
+);
+
+CREATE TABLE notification (
+    id                uuid DEFAULT gen_random_uuid() NOT NULL,
+    user_id           uuid NOT NULL,
+    registration_id   uuid NOT NULL,
+    type              notification_type NOT NULL,
+    channel           channel NOT NULL,
+    payload           jsonb,
+    scheduled_at      timestamptz NOT NULL,
+    sent_at           timestamptz,
+    read_at           timestamptz,
+    PRIMARY KEY (id),
+    FOREIGN KEY (user_id) REFERENCES app_user(id),
+    FOREIGN KEY (registration_id) REFERENCES registration(id)
+);
+
+-- 3. Индексы: частично уникальные и поисковые
+CREATE UNIQUE INDEX ux_club_name
+    ON club (name);
+CREATE UNIQUE INDEX ux_registration_session_id_user_id
+    ON registration (session_id, user_id)
+    WHERE status &lt;&gt; &#x27;Отменено&#x27;;
+CREATE UNIQUE INDEX ux_seat_offer_registration_id
+    ON seat_offer (registration_id)
+    WHERE status = &#x27;Выдано&#x27;;
+CREATE UNIQUE INDEX ux_event_version_event_id_number
+    ON event_version (event_id, number);
+CREATE UNIQUE INDEX ux_moderation_request_event_id
+    ON moderation_request (event_id)
+    WHERE status = &#x27;На рассмотрении&#x27;;
+CREATE UNIQUE INDEX ux_decision_request_id
+    ON decision (request_id);
+CREATE UNIQUE INDEX ux_review_event_id_user_id
+    ON review (event_id, user_id);
+CREATE INDEX ix_event_status_published ON event (status, published_at DESC);
+CREATE INDEX ix_event_club ON event (club_id);
+CREATE INDEX ix_session_event_starts ON session (event_id, starts_at);
+CREATE INDEX ix_registration_session_status ON registration (session_id, status);
+CREATE INDEX ix_registration_user ON registration (user_id, created_at DESC);
+CREATE INDEX ix_seat_offer_expires ON seat_offer (expires_at) WHERE status = &#x27;Выдано&#x27;;
+CREATE INDEX ix_notification_due ON notification (scheduled_at) WHERE sent_at IS NULL;
+CREATE INDEX ix_event_version_snapshot ON event_version USING gin (snapshot);
+
+-- 4. Триггеры инвариантов: счётчик занятых мест
+-- taken меняется только здесь, поэтому правило 0 &lt;= taken &lt;= capacity
+-- не может быть нарушено прикладным кодом.
+CREATE OR REPLACE FUNCTION registration_seat_insert() RETURNS trigger AS $$
+DECLARE s record;
+BEGIN
+    IF NEW.status IN (&#x27;Записан&#x27;, &#x27;Посетил&#x27;) THEN
+        SELECT taken, capacity INTO s FROM session WHERE id = NEW.session_id FOR UPDATE;
+        IF NOT FOUND THEN
+            RAISE EXCEPTION &#x27;FK_VIOLATION: сессия % не найдена&#x27;, NEW.session_id;
+        END IF;
+        IF s.taken &gt;= s.capacity THEN
+            RAISE EXCEPTION &#x27;NO_SEATS: в сессии % нет свободных мест&#x27;, NEW.session_id;
+        END IF;
+        UPDATE session SET taken = taken + 1 WHERE id = NEW.session_id;
+    END IF;
+    RETURN NEW;
+END $$ LANGUAGE plpgsql;
+
+CREATE OR REPLACE FUNCTION registration_seat_update() RETURNS trigger AS $$
+DECLARE s record;
+BEGIN
+    IF OLD.status IN (&#x27;Записан&#x27;, &#x27;Посетил&#x27;) AND NEW.status = &#x27;Отменено&#x27; THEN
+        UPDATE session SET taken = GREATEST(taken - 1, 0) WHERE id = NEW.session_id;
+    ELSIF OLD.status = &#x27;Отменено&#x27; AND NEW.status IN (&#x27;Записан&#x27;, &#x27;Посетил&#x27;) THEN
+        SELECT taken, capacity INTO s FROM session WHERE id = NEW.session_id FOR UPDATE;
+        IF s.taken &gt;= s.capacity THEN
+            RAISE EXCEPTION &#x27;NO_SEATS: в сессии % нет свободных мест&#x27;, NEW.session_id;
+        END IF;
+        UPDATE session SET taken = taken + 1 WHERE id = NEW.session_id;
+    END IF;
+    RETURN NEW;
+END $$ LANGUAGE plpgsql;
+
+CREATE TRIGGER trg_registration_seat_ins
+    BEFORE INSERT ON registration
+    FOR EACH ROW EXECUTE FUNCTION registration_seat_insert();
+
+CREATE TRIGGER trg_registration_seat_upd
+    AFTER UPDATE OF status ON registration
+    FOR EACH ROW EXECUTE FUNCTION registration_seat_update();
+
+-- 5. Журнал модерации неизменяем: решения только добавляются
+CREATE OR REPLACE FUNCTION decision_immutable() RETURNS trigger AS $$
+BEGIN
+    RAISE EXCEPTION &#x27;APPEND_ONLY: решение по заявке нельзя изменить или удалить&#x27;;
+END $$ LANGUAGE plpgsql;
+
+CREATE TRIGGER trg_decision_no_update
+    BEFORE UPDATE OR DELETE ON decision
+    FOR EACH ROW EXECUTE FUNCTION decision_immutable();
+
+COMMIT;
+</pre><h2>Демонстрационные данные (db/seed.sql)</h2><pre>-- Campus Events: демонстрационные данные для ЛР № 4.
+-- Запускать после schema.sql:  psql -f db/schema.sql -f db/seed.sql
+-- Значения счётчика session.taken здесь не указываются: его ведёт триггер регистрации.
+
+BEGIN;
+
+INSERT INTO category (code, name, sort_order) VALUES
+    (&#x27;it&#x27;,      &#x27;Информационные технологии&#x27;, 1),
+    (&#x27;sport&#x27;,   &#x27;Спорт&#x27;,                     2),
+    (&#x27;culture&#x27;, &#x27;Культура&#x27;,                  3),
+    (&#x27;science&#x27;, &#x27;Наука&#x27;,                     4);
+
+INSERT INTO club (id, name, description, is_active) VALUES
+    (&#x27;a1000000-0000-4000-8000-000000000001&#x27;, &#x27;Клуб программистов ФПМИ&#x27;,
+     &#x27;Хакатоны, митапы и разбор алгоритмов&#x27;, true),
+    (&#x27;a1000000-0000-4000-8000-000000000002&#x27;, &#x27;Спортивный клуб&#x27;,
+     &#x27;Волейбол, баскетбол, настольный теннис&#x27;, true),
+    (&#x27;a1000000-0000-4000-8000-000000000003&#x27;, &#x27;Студенческий совет&#x27;,
+     &#x27;Общие мероприятия факультета&#x27;, true);
+
+INSERT INTO app_user (id, cas_login, full_name, email, faculty, study_group, role) VALUES
+    (&#x27;11111111-1111-4111-8111-111111111111&#x27;, &#x27;ivanov&#x27;,    &#x27;Иванов Иван Иванович&#x27;,      &#x27;ivanov@bsu.by&#x27;,    &#x27;ФПМИ&#x27;, &#x27;4 курс, 1 группа&#x27;,  &#x27;Студент&#x27;),
+    (&#x27;11111111-1111-4111-8111-111111111112&#x27;, &#x27;petrova&#x27;,   &#x27;Петрова Анна Сергеевна&#x27;,    &#x27;petrova@bsu.by&#x27;,   &#x27;ФПМИ&#x27;, &#x27;3 курс, 2 группа&#x27;,  &#x27;Студент&#x27;),
+    (&#x27;11111111-1111-4111-8111-111111111113&#x27;, &#x27;sidorov&#x27;,   &#x27;Сидоров Павел Олегович&#x27;,    &#x27;sidorov@bsu.by&#x27;,   &#x27;ФПМИ&#x27;, &#x27;4 курс, 1 группа&#x27;,  &#x27;Организатор&#x27;),
+    (&#x27;11111111-1111-4111-8111-111111111114&#x27;, &#x27;kuznecova&#x27;, &#x27;Кузнецова Мария Игоревна&#x27;,  &#x27;kuznecova@bsu.by&#x27;, &#x27;ФПМИ&#x27;, NULL,                &#x27;Администратор&#x27;),
+    (&#x27;11111111-1111-4111-8111-111111111115&#x27;, &#x27;lukashev&#x27;,  &#x27;Лукашевич Егор Дмитриевич&#x27;, &#x27;lukashev@bsu.by&#x27;,  &#x27;ФПМИ&#x27;, &#x27;2 курс, 3 группа&#x27;,  &#x27;Студент&#x27;);
+
+INSERT INTO membership (user_id, club_id, position) VALUES
+    (&#x27;11111111-1111-4111-8111-111111111113&#x27;, &#x27;a1000000-0000-4000-8000-000000000001&#x27;, &#x27;Руководитель&#x27;),
+    (&#x27;11111111-1111-4111-8111-111111111111&#x27;, &#x27;a1000000-0000-4000-8000-000000000001&#x27;, &#x27;Член&#x27;);
+
+INSERT INTO event (id, club_id, category_code, title, description, status, publish_mode,
+                   capacity, owner_id, published_at) VALUES
+    (&#x27;b2000000-0000-4000-8000-000000000001&#x27;, &#x27;a1000000-0000-4000-8000-000000000001&#x27;, &#x27;it&#x27;,
+     &#x27;Хакатон FPMI-2026&#x27;, &#x27;Сорок восемь часов на прототип учебного сервиса&#x27;, &#x27;Опубликовано&#x27;,
+     &#x27;Свободный&#x27;, 60, &#x27;11111111-1111-4111-8111-111111111113&#x27;, &#x27;2026-10-20 09:00:00+03&#x27;),
+    (&#x27;b2000000-0000-4000-8000-000000000002&#x27;, &#x27;a1000000-0000-4000-8000-000000000001&#x27;, &#x27;it&#x27;,
+     &#x27;Лекция «Архитектура C4 на практике»&#x27;, &#x27;Разбор уровней C4 на примере студенческого проекта&#x27;,
+     &#x27;На модерации&#x27;, &#x27;С утверждением&#x27;, 120, &#x27;11111111-1111-4111-8111-111111111113&#x27;, NULL),
+    (&#x27;b2000000-0000-4000-8000-000000000003&#x27;, &#x27;a1000000-0000-4000-8000-000000000002&#x27;, &#x27;sport&#x27;,
+     &#x27;Турнир по волейболу&#x27;, &#x27;Смешанные команды по шесть человек&#x27;, &#x27;Опубликовано&#x27;,
+     &#x27;Свободный&#x27;, 40, &#x27;11111111-1111-4111-8111-111111111113&#x27;, &#x27;2026-10-28 12:00:00+03&#x27;);
+
+-- capacity = 3 при двух уже занятых местах: третья запись даёт NO_SEATS,
+-- это удобно для демонстрации кода 409 на Mock-сервере.
+INSERT INTO session (id, event_id, starts_at, ends_at, building, room, capacity, qr_key_version) VALUES
+    (&#x27;c3000000-0000-4000-8000-000000000001&#x27;, &#x27;b2000000-0000-4000-8000-000000000001&#x27;,
+     &#x27;2026-11-20 18:00:00+03&#x27;, &#x27;2026-11-20 21:00:00+03&#x27;, &#x27;Главный корпус&#x27;, &#x27;ауд. 721&#x27;, 3, 1),
+    (&#x27;c3000000-0000-4000-8000-000000000002&#x27;, &#x27;b2000000-0000-4000-8000-000000000001&#x27;,
+     &#x27;2026-11-21 10:00:00+03&#x27;, &#x27;2026-11-22 18:00:00+03&#x27;, &#x27;Главный корпус&#x27;, &#x27;Коворкинг&#x27;, 40, 1),
+    (&#x27;c3000000-0000-4000-8000-000000000003&#x27;, &#x27;b2000000-0000-4000-8000-000000000003&#x27;,
+     &#x27;2026-11-25 19:00:00+03&#x27;, &#x27;2026-11-25 21:30:00+03&#x27;, &#x27;Спорткомплекс&#x27;, &#x27;Зал 2&#x27;, 20, 1),
+    (&#x27;c3000000-0000-4000-8000-000000000004&#x27;, &#x27;b2000000-0000-4000-8000-000000000002&#x27;,
+     &#x27;2026-12-01 17:00:00+03&#x27;, &#x27;2026-12-01 18:30:00+03&#x27;, &#x27;Главный корпус&#x27;, &#x27;ауд. 512&#x27;, 15, 1);
+
+INSERT INTO event_version (id, event_id, number, snapshot, author_id) VALUES
+    (&#x27;d4000000-0000-4000-8000-000000000001&#x27;, &#x27;b2000000-0000-4000-8000-000000000001&#x27;, 1,
+     &#x27;{&quot;title&quot;:&quot;Хакатон FPMI-2026&quot;,&quot;capacity&quot;:60,&quot;sessions&quot;:1}&#x27;, &#x27;11111111-1111-4111-8111-111111111113&#x27;),
+    (&#x27;d4000000-0000-4000-8000-000000000002&#x27;, &#x27;b2000000-0000-4000-8000-000000000002&#x27;, 1,
+     &#x27;{&quot;title&quot;:&quot;Лекция «Архитектура C4 на практике»&quot;,&quot;capacity&quot;:120,&quot;sessions&quot;:1}&#x27;,
+     &#x27;11111111-1111-4111-8111-111111111113&#x27;),
+    (&#x27;d4000000-0000-4000-8000-000000000003&#x27;, &#x27;b2000000-0000-4000-8000-000000000003&#x27;, 1,
+     &#x27;{&quot;title&quot;:&quot;Турнир по волейболу&quot;,&quot;capacity&quot;:40,&quot;sessions&quot;:1}&#x27;, &#x27;11111111-1111-4111-8111-111111111113&#x27;);
+
+INSERT INTO registration (id, session_id, user_id, status, waitlist_position, source,
+                         cancelled_at, attended_at) VALUES
+    (&#x27;e5000000-0000-4000-8000-000000000001&#x27;, &#x27;c3000000-0000-4000-8000-000000000001&#x27;,
+     &#x27;11111111-1111-4111-8111-111111111111&#x27;, &#x27;Записан&#x27;, NULL, &#x27;Приложение&#x27;, NULL, NULL),
+    (&#x27;e5000000-0000-4000-8000-000000000002&#x27;, &#x27;c3000000-0000-4000-8000-000000000001&#x27;,
+     &#x27;11111111-1111-4111-8111-111111111112&#x27;, &#x27;Записан&#x27;, NULL, &#x27;Веб&#x27;, NULL, NULL),
+    (&#x27;e5000000-0000-4000-8000-000000000003&#x27;, &#x27;c3000000-0000-4000-8000-000000000001&#x27;,
+     &#x27;11111111-1111-4111-8111-111111111115&#x27;, &#x27;В листе ожидания&#x27;, 1, &#x27;Приложение&#x27;, NULL, NULL),
+    (&#x27;e5000000-0000-4000-8000-000000000004&#x27;, &#x27;c3000000-0000-4000-8000-000000000002&#x27;,
+     &#x27;11111111-1111-4111-8111-111111111111&#x27;, &#x27;Отменено&#x27;, NULL, &#x27;Приложение&#x27;,
+     &#x27;2026-11-01 10:15:00+03&#x27;, NULL),
+    (&#x27;e5000000-0000-4000-8000-000000000005&#x27;, &#x27;c3000000-0000-4000-8000-000000000003&#x27;,
+     &#x27;11111111-1111-4111-8111-111111111112&#x27;, &#x27;Посетил&#x27;, NULL, &#x27;Регистрация на месте&#x27;, NULL,
+     &#x27;2026-11-25 19:05:00+03&#x27;);
+
+INSERT INTO ticket (id, registration_id, qr_payload, qr_signature, status, issued_at) VALUES
+    (&#x27;f6000000-0000-4000-8000-000000000001&#x27;, &#x27;e5000000-0000-4000-8000-000000000001&#x27;,
+     &#x27;e5000000-0000-4000-8000-000000000001|c3000000-0000-4000-8000-000000000001|2026-10-21T10:00:00Z&#x27;,
+     &#x27;MEUCIQDf3kq7Xo0sYw9n1Vv2Lb8pR4tGh6Kz9Qm2Wd5Er7Ty8AIgZx1&#x27;, &#x27;Действителен&#x27;,
+     &#x27;2026-10-21 10:00:00+03&#x27;),
+    (&#x27;f6000000-0000-4000-8000-000000000002&#x27;, &#x27;e5000000-0000-4000-8000-000000000002&#x27;,
+     &#x27;e5000000-0000-4000-8000-000000000002|c3000000-0000-4000-8000-000000000001|2026-10-22T12:30:00Z&#x27;,
+     &#x27;MEQCIBf7pQ2nLx4sVb1yKm8dRt3Wg6Zc9Nh5Ju0Pe2Ay7XoAIgTz&#x27;, &#x27;Действителен&#x27;,
+     &#x27;2026-10-22 12:30:00+03&#x27;),
+    (&#x27;f6000000-0000-4000-8000-000000000003&#x27;, &#x27;e5000000-0000-4000-8000-000000000005&#x27;,
+     &#x27;e5000000-0000-4000-8000-000000000005|c3000000-0000-4000-8000-000000000003|2026-11-25T16:00:00Z&#x27;,
+     &#x27;MEUCIQDk9rB2xN1pQ7sVc4yLm0dZt8Wg3Jh6Ku2Pe5Ay7XoAIgRT&#x27;, &#x27;Действителен&#x27;,
+     &#x27;2026-11-25 16:00:00+03&#x27;);
+
+-- Отметка прохода: статус и время меняются одной операцией,
+-- иначе нарушится ограничение ticket_used_chk.
+UPDATE ticket SET status = &#x27;Использован&#x27;, used_at = &#x27;2026-11-25 19:05:00+03&#x27;
+ WHERE id = &#x27;f6000000-0000-4000-8000-000000000003&#x27;;
+
+INSERT INTO seat_offer (id, session_id, registration_id, issued_at, expires_at, status) VALUES
+    (&#x27;07000000-0000-4000-8000-000000000001&#x27;, &#x27;c3000000-0000-4000-8000-000000000001&#x27;,
+     &#x27;e5000000-0000-4000-8000-000000000003&#x27;, &#x27;2026-11-01 10:15:00+03&#x27;,
+     &#x27;2026-11-01 10:45:00+03&#x27;, &#x27;Выдано&#x27;);
+
+INSERT INTO moderation_request (id, event_id, version_id, submitted_at, due_at, status) VALUES
+    (&#x27;18000000-0000-4000-8000-000000000001&#x27;, &#x27;b2000000-0000-4000-8000-000000000002&#x27;,
+     &#x27;d4000000-0000-4000-8000-000000000002&#x27;, &#x27;2026-11-02 09:00:00+03&#x27;,
+     &#x27;2026-11-04 09:00:00+03&#x27;, &#x27;На рассмотрении&#x27;),
+    (&#x27;18000000-0000-4000-8000-000000000002&#x27;, &#x27;b2000000-0000-4000-8000-000000000003&#x27;,
+     &#x27;d4000000-0000-4000-8000-000000000003&#x27;, &#x27;2026-10-27 15:00:00+03&#x27;,
+     &#x27;2026-10-28 15:00:00+03&#x27;, &#x27;Утверждено&#x27;);
+
+INSERT INTO decision (id, request_id, type, comment, admin_id, decided_at) VALUES
+    (&#x27;29000000-0000-4000-8000-000000000001&#x27;, &#x27;18000000-0000-4000-8000-000000000002&#x27;,
+     &#x27;Утвердить&#x27;, &#x27;Опубликовано без замечаний, афиша загружена&#x27;, &#x27;11111111-1111-4111-8111-111111111114&#x27;,
+     &#x27;2026-10-28 11:00:00+03&#x27;);
+
+INSERT INTO review (id, event_id, user_id, rating, text, status) VALUES
+    (&#x27;3a000000-0000-4000-8000-000000000001&#x27;, &#x27;b2000000-0000-4000-8000-000000000003&#x27;,
+     &#x27;11111111-1111-4111-8111-111111111112&#x27;, 5, &#x27;Хорошая организация, судейство по правилам&#x27;, &#x27;Опубликован&#x27;);
+
+INSERT INTO notification (id, user_id, registration_id, type, channel, payload,
+                          scheduled_at, sent_at, read_at) VALUES
+    (&#x27;4b000000-0000-4000-8000-000000000001&#x27;, &#x27;11111111-1111-4111-8111-111111111111&#x27;,
+     &#x27;e5000000-0000-4000-8000-000000000001&#x27;, &#x27;Подтверждение&#x27;, &#x27;Push&#x27;,
+     &#x27;{&quot;event&quot;:&quot;Хакатон FPMI-2026&quot;,&quot;when&quot;:&quot;20 ноября, 18:00&quot;}&#x27;,
+     &#x27;2026-10-21 10:00:00+03&#x27;, &#x27;2026-10-21 10:00:05+03&#x27;, &#x27;2026-10-21 10:01:00+03&#x27;),
+    (&#x27;4b000000-0000-4000-8000-000000000002&#x27;, &#x27;11111111-1111-4111-8111-111111111111&#x27;,
+     &#x27;e5000000-0000-4000-8000-000000000001&#x27;, &#x27;Напоминание 24 ч&#x27;, &#x27;Оба&#x27;,
+     &#x27;{&quot;event&quot;:&quot;Хакатон FPMI-2026&quot;,&quot;when&quot;:&quot;20 ноября, 18:00&quot;}&#x27;,
+     &#x27;2026-11-19 18:00:00+03&#x27;, NULL, NULL);
+
+COMMIT;
+
+-- Контроль: счётчик мест должен совпасть с числом активных записей.
+-- SELECT s.id, s.taken, s.capacity,
+--        count(r.id) FILTER (WHERE r.status IN (&#x27;Записан&#x27;,&#x27;Посетил&#x27;)) AS active
+--   FROM session s LEFT JOIN registration r ON r.session_id = s.id
+--  GROUP BY s.id, s.taken, s.capacity;
+</pre>
+  <footer>
+    <a href="../index.html">← На главную</a> ·
+    <a href="https://github.com/1997yyyy/Human-Machine-Interface-Design-LAB4">Репозиторий</a> ·
+    ПЧМИ, лабораторная работа № 4, группа 13
+  </footer>
+</div>
+</body>
+</html>

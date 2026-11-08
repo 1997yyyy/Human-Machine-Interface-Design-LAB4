@@ -1,0 +1,353 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Спецификация API — Campus Events</title>
+<style>
+  :root{
+    --bg:#fbfbf9; --card:#ffffff; --ink:#1b1b19; --muted:#6b6b66;
+    --line:#e2e1da; --accent:#0f6e56; --accent-soft:#e1f5ee;
+    --get:#0f6e56; --post:#1f5fa8; --put:#8a5a00; --patch:#7a3fa0; --delete:#a33a2c;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--ink);
+       font:16px/1.65 -apple-system,"Segoe UI",Roboto,Helvetica,Arial,sans-serif}
+  .wrap{max-width:880px;margin:0 auto;padding:56px 24px 80px}
+  header{border-bottom:1px solid var(--line);padding-bottom:28px;margin-bottom:28px}
+  .eyebrow{font-size:13px;letter-spacing:.08em;text-transform:uppercase;color:var(--accent)}
+  h1{font-size:32px;line-height:1.2;margin:10px 0 12px;font-weight:600}
+  .lead{color:var(--muted);margin:0;max-width:64ch}
+  .stats{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin:28px 0 10px}
+  .stat{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:16px}
+  .stat b{display:block;font-size:26px;font-weight:600;line-height:1.1}
+  .stat span{font-size:13px;color:var(--muted)}
+  h2{font-size:15px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);
+     margin:44px 0 14px;font-weight:500}
+  a{color:var(--accent)}
+  code{background:#f1efe8;padding:1px 5px;border-radius:4px;font-size:13px}
+  .op{background:var(--card);border:1px solid var(--line);border-radius:12px;
+      padding:16px 20px;margin-bottom:10px}
+  .op .head{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:6px}
+  .m{font:600 11px/1 ui-monospace,SFMono-Regular,Menlo,monospace;letter-spacing:.06em;
+     color:#fff;padding:5px 8px;border-radius:5px}
+  .m.get{background:var(--get)} .m.post{background:var(--post)} .m.put{background:var(--put)}
+  .m.patch{background:var(--patch)} .m.delete{background:var(--delete)}
+  .op .path{font:600 15px/1.3 ui-monospace,SFMono-Regular,Menlo,monospace}
+  .op .sum{margin:0 0 4px;font-weight:600}
+  .op .desc{margin:0;color:var(--muted);font-size:14px}
+  .op .oid{font-size:12px;color:var(--muted)}
+  table{width:100%;border-collapse:collapse;font-size:14px;background:var(--card);
+        border:1px solid var(--line);border-radius:12px;overflow:hidden;margin:10px 0 0}
+  th,td{text-align:left;padding:9px 12px;border-bottom:1px solid var(--line);vertical-align:top}
+  th{background:var(--accent-soft);font-weight:600;font-size:13px}
+  tr:last-child td{border-bottom:none}
+  .req{color:#a33a2c;font-size:12px}
+  details{background:var(--card);border:1px solid var(--line);border-radius:12px;
+          padding:12px 18px;margin-bottom:8px}
+  details>summary{cursor:pointer;font-weight:600;font-size:15px}
+  details[open]>summary{margin-bottom:8px}
+  pre{background:#1f1f1d;color:#e9e6dc;padding:16px 18px;border-radius:12px;overflow:auto;
+      font:12.5px/1.55 ui-monospace,SFMono-Regular,Menlo,monospace}
+  .methods{display:flex;gap:6px;flex-wrap:wrap;margin-top:8px}
+  footer{margin-top:52px;padding-top:20px;border-top:1px solid var(--line);
+         color:var(--muted);font-size:13px}
+  @media(max-width:640px){.stats{grid-template-columns:repeat(2,1fr)}h1{font-size:26px}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div class="eyebrow">ПЧМИ · ЛР № 4 · задание 4 · OpenAPI 3.0.3</div>
+    <h1>Спецификация API — Campus Events</h1>
+    <p class="lead">Афиша студенческих мероприятий БГУ: 29 операций, сгруппированных по ролям. Каждая операция показывает параметры, тело запроса со ссылкой на схему и коды ответов.</p>
+  </header>
+  <div class="stats"><div class="stat"><b>25</b><span>путей</span></div><div class="stat"><b>29</b><span>операций</span></div><div class="stat"><b>28</b><span>схем данных</span></div><div class="stat"><b>7</b><span>разделов</span></div></div>
+  <p class="oid">Страница собрана из <code>api/openapi.yaml</code> скриптом <code>tools/gen_site.py</code>: <a href="openapi.yaml">скачать оригинал (YAML)</a>. Файл отдаётся без <code>charset</code>, поэтому в браузере исходник выглядит искажённо — читать спецификацию нужно здесь.</p><h2>Точки входа</h2><div class="op">
+<div style="margin-bottom:6px"><code>https://api.campus-events.bsu.by/api/v1</code> <span class="oid">— Пилотный стенд</span></div>
+<div style="margin-bottom:6px"><code>http://localhost:8000/api/v1</code> <span class="oid">— Локальный запуск в Docker</span></div>
+<div class="oid">Аутентификация <code>bearerAuth</code>: bearer JWT. Токен, полученный в `POST /auth/cas/callback`, срок жизни 30 дней</div>
+</div>
+<h2>Каталог</h2>
+<div class='op'>
+<div class='head'><span class='m get'>GET</span><span class='path'>/events</span></div>
+<p class='sum'>Афиша с фильтрами и постраничной выдачей</p>
+<p class='oid'>listEvents · без токена</p>
+<table><tr><th>Параметр</th><th>Где</th><th>Тип</th><th>Обязателен</th><th>Смысл</th></tr><tr><td><code>category</code></td><td>query</td><td>string</td><td>нет</td><td>Код категории</td></tr><tr><td><code>club</code></td><td>query</td><td>string · uuid</td><td>нет</td><td>Идентификатор клуба</td></tr><tr><td><code>from</code></td><td>query</td><td>string · date-time</td><td>нет</td><td>Начало периода (включительно)</td></tr><tr><td><code>page</code></td><td>query</td><td>integer</td><td>нет</td><td>—</td></tr><tr><td><code>size</code></td><td>query</td><td>integer</td><td>нет</td><td>—</td></tr></table>
+<table><tr><th>Код</th><th>Смысл</th><th>Схема ответа</th></tr><tr><td><code>200</code></td><td>Страница афиши</td><td>—</td></tr><tr><td><code>429</code></td><td>Превышен лимит запросов</td><td><a href=#Error><code>Error</code></a></td></tr><tr><td><code>500</code></td><td>Внутренняя ошибка сервиса</td><td><a href=#Error><code>Error</code></a></td></tr></table>
+</div>
+<div class='op'>
+<div class='head'><span class='m get'>GET</span><span class='path'>/events/{id}</span></div>
+<p class='sum'>Карточка мероприятия с сессиями</p>
+<p class='oid'>getEvent · без токена</p>
+<table><tr><th>Параметр</th><th>Где</th><th>Тип</th><th>Обязателен</th><th>Смысл</th></tr><tr><td><code>id</code></td><td>path</td><td>string · uuid</td><td><span class="req">обязателен</span></td><td>Идентификатор мероприятия</td></tr></table>
+<table><tr><th>Код</th><th>Смысл</th><th>Схема ответа</th></tr><tr><td><code>200</code></td><td>Карточка</td><td><a href=#Event><code>Event</code></a></td></tr><tr><td><code>404</code></td><td>Объект не найден или скрыт от этой роли</td><td><a href=#Error><code>Error</code></a></td></tr><tr><td><code>500</code></td><td>Внутренняя ошибка сервиса</td><td><a href=#Error><code>Error</code></a></td></tr></table>
+</div>
+<div class='op'>
+<div class='head'><span class='m get'>GET</span><span class='path'>/search</span></div>
+<p class='sum'>Поиск по названию и описанию</p>
+<p class='oid'>search · без токена</p>
+<table><tr><th>Параметр</th><th>Где</th><th>Тип</th><th>Обязателен</th><th>Смысл</th></tr><tr><td><code>q</code></td><td>query</td><td>string</td><td><span class="req">обязателен</span></td><td>—</td></tr></table>
+<table><tr><th>Код</th><th>Смысл</th><th>Схема ответа</th></tr><tr><td><code>200</code></td><td>Результаты поиска</td><td>—</td></tr><tr><td><code>422</code></td><td>Ошибка валидации полей</td><td><a href=#Error><code>Error</code></a></td></tr></table>
+</div>
+<div class='op'>
+<div class='head'><span class='m get'>GET</span><span class='path'>/categories</span></div>
+<p class='sum'>Справочник категорий</p>
+<p class='oid'>listCategories · без токена</p>
+<table><tr><th>Код</th><th>Смысл</th><th>Схема ответа</th></tr><tr><td><code>200</code></td><td>Категории</td><td>—</td></tr></table>
+</div>
+<div class='op'>
+<div class='head'><span class='m get'>GET</span><span class='path'>/clubs</span></div>
+<p class='sum'>Список клубов</p>
+<p class='oid'>listClubs · без токена</p>
+<table><tr><th>Код</th><th>Смысл</th><th>Схема ответа</th></tr><tr><td><code>200</code></td><td>Клубы</td><td>—</td></tr></table>
+</div>
+<h2>Профиль</h2>
+<div class='op'>
+<div class='head'><span class='m post'>POST</span><span class='path'>/auth/cas/callback</span></div>
+<p class='sum'>Обмен тикета CAS на токен доступа</p>
+<p class='desc'>Единственная точка входа. Пароль не передаётся и не хранится; при первом входе создаётся учётная запись с ролью «Студент».</p>
+<p class='oid'>casCallback · без токена</p>
+<p class='oid'>Тело запроса <code>application/json</code> · обязателен</p>
+<table><tr><th>Поле</th><th>Тип</th><th>Смысл</th></tr><tr><td><code>ticket</code><span class="req">*</span></td><td>string</td><td><span class='oid'>пример: <code>ST-1234-abcdef-cas</code></span></td></tr><tr><td><code>service</code><span class="req">*</span></td><td>string · uri</td><td><span class='oid'>пример: <code>https://campus-events.bsu.by/auth/callback</code></span></td></tr></table>
+<table><tr><th>Код</th><th>Смысл</th><th>Схема ответа</th></tr><tr><td><code>200</code></td><td>Токен выдан</td><td>—</td></tr><tr><td><code>401</code></td><td>Нет токена или истёк срок</td><td><a href=#Error><code>Error</code></a></td></tr><tr><td><code>422</code></td><td>Ошибка валидации полей</td><td><a href=#Error><code>Error</code></a></td></tr></table>
+</div>
+<div class='op'>
+<div class='head'><span class='m get'>GET</span><span class='path'>/me</span></div>
+<p class='sum'>Текущий пользователь, его роль и клубы</p>
+<p class='oid'>getMe · Bearer JWT</p>
+<table><tr><th>Код</th><th>Смысл</th><th>Схема ответа</th></tr><tr><td><code>200</code></td><td>Профиль</td><td><a href=#User><code>User</code></a></td></tr><tr><td><code>401</code></td><td>Нет токена или истёк срок</td><td><a href=#Error><code>Error</code></a></td></tr></table>
+</div>
+<div class='op'>
+<div class='head'><span class='m get'>GET</span><span class='path'>/notifications/settings</span></div>
+<p class='sum'>Настройки каналов уведомлений</p>
+<p class='oid'>getNotificationSettings · Bearer JWT</p>
+<table><tr><th>Код</th><th>Смысл</th><th>Схема ответа</th></tr><tr><td><code>200</code></td><td>Настройки</td><td><a href=#NotificationSettings><code>NotificationSettings</code></a></td></tr><tr><td><code>401</code></td><td>Нет токена или истёк срок</td><td><a href=#Error><code>Error</code></a></td></tr></table>
+</div>
+<div class='op'>
+<div class='head'><span class='m put'>PUT</span><span class='path'>/notifications/settings</span></div>
+<p class='sum'>Изменить каналы уведомлений</p>
+<p class='desc'>Подтверждение записи и приглашение из очереди отключить нельзя — только канал доставки.</p>
+<p class='oid'>putNotificationSettings · Bearer JWT</p>
+<p class='oid'>Тело запроса <code>application/json</code> → <a href='#NotificationSettings'><code>NotificationSettings</code></a> · обязателен</p>
+<table><tr><th>Поле</th><th>Тип</th><th>Смысл</th></tr><tr><td><code>push</code></td><td>boolean</td><td><span class='oid'>пример: <code>True</code></span></td></tr><tr><td><code>email</code></td><td>boolean</td><td><span class='oid'>пример: <code>True</code></span></td></tr><tr><td><code>reminders</code></td><td>boolean</td><td>Напоминания за 24 и 2 часа; отключение не затрагивает подтверждение записи <span class='oid'>пример: <code>True</code></span></td></tr></table>
+<table><tr><th>Код</th><th>Смысл</th><th>Схема ответа</th></tr><tr><td><code>200</code></td><td>Настройки сохранены</td><td><a href=#NotificationSettings><code>NotificationSettings</code></a></td></tr><tr><td><code>401</code></td><td>Нет токена или истёк срок</td><td><a href=#Error><code>Error</code></a></td></tr><tr><td><code>422</code></td><td>Ошибка валидации полей</td><td><a href=#Error><code>Error</code></a></td></tr></table>
+</div>
+<h2>Регистрация</h2>
+<div class='op'>
+<div class='head'><span class='m post'>POST</span><span class='path'>/sessions/{sid}/registrations</span></div>
+<p class='sum'>Записаться на сессию</p>
+<p class='desc'>Основной сценарий записи. Проверки по порядку: сессия существует и открыта,
+дубликата нет, место есть. Если места нет — 409 `NO_SEATS`, и клиент
+предлагает лист ожидания.
+</p>
+<p class='oid'>createRegistration · Bearer JWT</p>
+<table><tr><th>Параметр</th><th>Где</th><th>Тип</th><th>Обязателен</th><th>Смысл</th></tr><tr><td><code>sid</code></td><td>path</td><td>string · uuid</td><td><span class="req">обязателен</span></td><td>Идентификатор сессии</td></tr></table>
+<p class='oid'>Тело запроса <code>application/json</code> → <a href='#RegistrationCreate'><code>RegistrationCreate</code></a> · обязателен</p>
+<table><tr><th>Поле</th><th>Тип</th><th>Смысл</th></tr><tr><td><code>source</code></td><td>enum</td><td><span class='oid'>значения: <code>Приложение</code>, <code>Веб</code>, <code>Регистрация на месте</code></span></td></tr></table>
+<table><tr><th>Код</th><th>Смысл</th><th>Схема ответа</th></tr><tr><td><code>201</code></td><td>Запись создана, билет выдан</td><td><a href=#Registration><code>Registration</code></a></td></tr><tr><td><code>401</code></td><td>Нет токена или истёк срок</td><td><a href=#Error><code>Error</code></a></td></tr><tr><td><code>404</code></td><td>Объект не найден или скрыт от этой роли</td><td><a href=#Error><code>Error</code></a></td></tr><tr><td><code>409</code></td><td>Конфликт состояния</td><td><a href=#Error><code>Error</code></a></td></tr><tr><td><code>422</code></td><td>Ошибка валидации полей</td><td><a href=#Error><code>Error</code></a></td></tr></table>
+</div>
+<div class='op'>
+<div class='head'><span class='m delete'>DELETE</span><span class='path'>/registrations/{id}</span></div>
+<p class='sum'>Отменить запись</p>
+<p class='desc'>Освобождает место, билет переводится в статус «Отозван», следующему в очереди уходит предложение места.</p>
+<p class='oid'>cancelRegistration · Bearer JWT</p>
+<table><tr><th>Параметр</th><th>Где</th><th>Тип</th><th>Обязателен</th><th>Смысл</th></tr><tr><td><code>id</code></td><td>path</td><td>string · uuid</td><td><span class="req">обязателен</span></td><td>—</td></tr></table>
+<table><tr><th>Код</th><th>Смысл</th><th>Схема ответа</th></tr><tr><td><code>204</code></td><td>Запись отменена</td><td>—</td></tr><tr><td><code>401</code></td><td>Нет токена или истёк срок</td><td><a href=#Error><code>Error</code></a></td></tr><tr><td><code>403</code></td><td>Нет прав на объект</td><td><a href=#Error><code>Error</code></a></td></tr><tr><td><code>404</code></td><td>Объект не найден или скрыт от этой роли</td><td><a href=#Error><code>Error</code></a></td></tr><tr><td><code>409</code></td><td>Конфликт состояния</td><td><a href=#Error><code>Error</code></a></td></tr></table>
+</div>
+<div class='op'>
+<div class='head'><span class='m post'>POST</span><span class='path'>/sessions/{sid}/waitlist</span></div>
+<p class='sum'>Встать в лист ожидания</p>
+<p class='oid'>joinWaitlist · Bearer JWT</p>
+<table><tr><th>Параметр</th><th>Где</th><th>Тип</th><th>Обязателен</th><th>Смысл</th></tr><tr><td><code>sid</code></td><td>path</td><td>string · uuid</td><td><span class="req">обязателен</span></td><td>Идентификатор сессии</td></tr></table>
+<p class='oid'>Тело запроса <code>application/json</code> · необязателен</p>
+<table><tr><th>Поле</th><th>Тип</th><th>Смысл</th></tr><tr><td><code>note</code></td><td>string</td><td>Необязательный комментарий для организатора <span class='oid'>maxLength=200</span></td></tr></table>
+<table><tr><th>Код</th><th>Смысл</th><th>Схема ответа</th></tr><tr><td><code>201</code></td><td>Место в очереди получено</td><td><a href=#Registration><code>Registration</code></a></td></tr><tr><td><code>401</code></td><td>Нет токена или истёк срок</td><td><a href=#Error><code>Error</code></a></td></tr><tr><td><code>404</code></td><td>Объект не найден или скрыт от этой роли</td><td><a href=#Error><code>Error</code></a></td></tr><tr><td><code>409</code></td><td>Конфликт состояния</td><td><a href=#Error><code>Error</code></a></td></tr><tr><td><code>422</code></td><td>Ошибка валидации полей</td><td><a href=#Error><code>Error</code></a></td></tr></table>
+</div>
+<div class='op'>
+<div class='head'><span class='m post'>POST</span><span class='path'>/seat-offers/{id}/accept</span></div>
+<p class='sum'>Принять предложенное место</p>
+<p class='desc'>Предложение живёт 30 минут; после истечения место уходит следующему, повтор даёт 409 `OFFER_EXPIRED`.</p>
+<p class='oid'>acceptSeatOffer · Bearer JWT</p>
+<table><tr><th>Параметр</th><th>Где</th><th>Тип</th><th>Обязателен</th><th>Смысл</th></tr><tr><td><code>id</code></td><td>path</td><td>string · uuid</td><td><span class="req">обязателен</span></td><td>—</td></tr></table>
+<p class='oid'>Тело запроса <code>application/json</code> · необязателен</p>
+<table><tr><th>Поле</th><th>Тип</th><th>Смысл</th></tr><tr><td><code>confirmSeatChange</code></td><td>boolean</td><td>Подтверждение, если место в другом зале</td></tr></table>
+<table><tr><th>Код</th><th>Смысл</th><th>Схема ответа</th></tr><tr><td><code>200</code></td><td>Запись переведена в статус «Записан», билет выдан</td><td><a href=#Registration><code>Registration</code></a></td></tr><tr><td><code>401</code></td><td>Нет токена или истёк срок</td><td><a href=#Error><code>Error</code></a></td></tr><tr><td><code>403</code></td><td>Нет прав на объект</td><td><a href=#Error><code>Error</code></a></td></tr><tr><td><code>404</code></td><td>Объект не найден или скрыт от этой роли</td><td><a href=#Error><code>Error</code></a></td></tr><tr><td><code>409</code></td><td>Конфликт состояния</td><td><a href=#Error><code>Error</code></a></td></tr></table>
+</div>
+<div class='op'>
+<div class='head'><span class='m post'>POST</span><span class='path'>/reviews</span></div>
+<p class='sum'>Оставить отзыв о посещённом мероприятии</p>
+<p class='oid'>createReview · Bearer JWT</p>
+<p class='oid'>Тело запроса <code>application/json</code> → <a href='#ReviewCreate'><code>ReviewCreate</code></a> · обязателен</p>
+<table><tr><th>Поле</th><th>Тип</th><th>Смысл</th></tr><tr><td><code>eventId</code><span class="req">*</span></td><td>string · uuid</td><td>—</td></tr><tr><td><code>rating</code><span class="req">*</span></td><td>integer</td><td><span class='oid'>minimum=1; maximum=5</span></td></tr><tr><td><code>text</code></td><td>string</td><td><span class='oid'>maxLength=2000</span></td></tr></table>
+<table><tr><th>Код</th><th>Смысл</th><th>Схема ответа</th></tr><tr><td><code>201</code></td><td>Отзыв создан и отправлен на проверку</td><td><a href=#Review><code>Review</code></a></td></tr><tr><td><code>401</code></td><td>Нет токена или истёк срок</td><td><a href=#Error><code>Error</code></a></td></tr><tr><td><code>403</code></td><td>Нет прав на объект</td><td><a href=#Error><code>Error</code></a></td></tr><tr><td><code>409</code></td><td>Конфликт состояния</td><td><a href=#Error><code>Error</code></a></td></tr><tr><td><code>422</code></td><td>Ошибка валидации полей</td><td><a href=#Error><code>Error</code></a></td></tr></table>
+</div>
+<h2>Билеты</h2>
+<div class='op'>
+<div class='head'><span class='m get'>GET</span><span class='path'>/tickets</span></div>
+<p class='sum'>Мои билеты</p>
+<p class='oid'>listTickets · Bearer JWT</p>
+<table><tr><th>Параметр</th><th>Где</th><th>Тип</th><th>Обязателен</th><th>Смысл</th></tr><tr><td><code>status</code></td><td>query</td><td>enum</td><td>нет</td><td>—</td></tr></table>
+<table><tr><th>Код</th><th>Смысл</th><th>Схема ответа</th></tr><tr><td><code>200</code></td><td>Билеты пользователя</td><td>—</td></tr><tr><td><code>401</code></td><td>Нет токена или истёк срок</td><td><a href=#Error><code>Error</code></a></td></tr></table>
+</div>
+<div class='op'>
+<div class='head'><span class='m get'>GET</span><span class='path'>/tickets/{id}</span></div>
+<p class='sum'>Билет с данными для QR</p>
+<p class='desc'>Содержит подписанную строку, но не содержит персональных данных. Доступен без сети 7 дней в приложении.</p>
+<p class='oid'>getTicket · Bearer JWT</p>
+<table><tr><th>Параметр</th><th>Где</th><th>Тип</th><th>Обязателен</th><th>Смысл</th></tr><tr><td><code>id</code></td><td>path</td><td>string · uuid</td><td><span class="req">обязателен</span></td><td>—</td></tr></table>
+<table><tr><th>Код</th><th>Смысл</th><th>Схема ответа</th></tr><tr><td><code>200</code></td><td>Билет</td><td><a href=#Ticket><code>Ticket</code></a></td></tr><tr><td><code>401</code></td><td>Нет токена или истёк срок</td><td><a href=#Error><code>Error</code></a></td></tr><tr><td><code>403</code></td><td>Нет прав на объект</td><td><a href=#Error><code>Error</code></a></td></tr><tr><td><code>404</code></td><td>Объект не найден или скрыт от этой роли</td><td><a href=#Error><code>Error</code></a></td></tr></table>
+</div>
+<div class='op'>
+<div class='head'><span class='m post'>POST</span><span class='path'>/tickets/{id}/check-in</span></div>
+<p class='sum'>Отметить присутствие по билету</p>
+<p class='oid'>checkInTicket · Bearer JWT</p>
+<table><tr><th>Параметр</th><th>Где</th><th>Тип</th><th>Обязателен</th><th>Смысл</th></tr><tr><td><code>id</code></td><td>path</td><td>string · uuid</td><td><span class="req">обязателен</span></td><td>—</td></tr></table>
+<p class='oid'>Тело запроса <code>application/json</code> → <a href='#CheckInRequest'><code>CheckInRequest</code></a> · обязателен</p>
+<table><tr><th>Поле</th><th>Тип</th><th>Смысл</th></tr><tr><td><code>qrPayload</code><span class="req">*</span></td><td>string</td><td><span class='oid'>maxLength=300</span></td></tr><tr><td><code>scannedAt</code><span class="req">*</span></td><td>string · date-time</td><td>—</td></tr><tr><td><code>deviceId</code></td><td>string</td><td><span class='oid'>maxLength=64</span></td></tr></table>
+<table><tr><th>Код</th><th>Смысл</th><th>Схема ответа</th></tr><tr><td><code>200</code></td><td>Отметка принята</td><td><a href=#CheckInResult><code>CheckInResult</code></a></td></tr><tr><td><code>401</code></td><td>Нет токена или истёк срок</td><td><a href=#Error><code>Error</code></a></td></tr><tr><td><code>403</code></td><td>Нет прав на объект</td><td><a href=#Error><code>Error</code></a></td></tr><tr><td><code>404</code></td><td>Объект не найден или скрыт от этой роли</td><td><a href=#Error><code>Error</code></a></td></tr><tr><td><code>409</code></td><td>Конфликт состояния</td><td><a href=#Error><code>Error</code></a></td></tr><tr><td><code>422</code></td><td>Ошибка валидации полей</td><td><a href=#Error><code>Error</code></a></td></tr></table>
+</div>
+<div class='op'>
+<div class='head'><span class='m post'>POST</span><span class='path'>/checkins/batch</span></div>
+<p class='sum'>Пакетная отметка после работы без сети</p>
+<p class='desc'>Принимает накопленную офлайн-очередь. Идемпотентно по `qrPayload`: повторная отметка не создаёт дубль и не перезаписывает время.</p>
+<p class='oid'>checkInBatch · Bearer JWT</p>
+<table><tr><th>Параметр</th><th>Где</th><th>Тип</th><th>Обязателен</th><th>Смысл</th></tr><tr><td><code>Idempotency-Key</code></td><td>header</td><td>string · uuid</td><td><span class="req">обязателен</span></td><td>—</td></tr></table>
+<p class='oid'>Тело запроса <code>application/json</code> → <a href='#BatchCheckInRequest'><code>BatchCheckInRequest</code></a> · обязателен</p>
+<table><tr><th>Поле</th><th>Тип</th><th>Смысл</th></tr><tr><td><code>deviceId</code></td><td>string</td><td>—</td></tr><tr><td><code>items</code><span class="req">*</span></td><td>array&lt;CheckInRequest&gt;</td><td>—</td></tr></table>
+<table><tr><th>Код</th><th>Смысл</th><th>Схема ответа</th></tr><tr><td><code>200</code></td><td>Результат по каждому элементу</td><td>—</td></tr><tr><td><code>401</code></td><td>Нет токена или истёк срок</td><td><a href=#Error><code>Error</code></a></td></tr><tr><td><code>403</code></td><td>Нет прав на объект</td><td><a href=#Error><code>Error</code></a></td></tr><tr><td><code>422</code></td><td>Ошибка валидации полей</td><td><a href=#Error><code>Error</code></a></td></tr></table>
+</div>
+<h2>Организатор</h2>
+<div class='op'>
+<div class='head'><span class='m post'>POST</span><span class='path'>/events</span></div>
+<p class='sum'>Создать мероприятие (черновик)</p>
+<p class='oid'>createEvent · Bearer JWT</p>
+<p class='oid'>Тело запроса <code>application/json</code> → <a href='#EventCreate'><code>EventCreate</code></a> · обязателен</p>
+<table><tr><th>Поле</th><th>Тип</th><th>Смысл</th></tr><tr><td><code>title</code><span class="req">*</span></td><td>string</td><td><span class='oid'>minLength=5; maxLength=200</span></td></tr><tr><td><code>description</code></td><td>string</td><td><span class='oid'>maxLength=4000</span></td></tr><tr><td><code>posterUrl</code></td><td>string</td><td><span class='oid'>maxLength=255</span></td></tr><tr><td><code>categoryCode</code><span class="req">*</span></td><td>string</td><td>—</td></tr><tr><td><code>clubId</code><span class="req">*</span></td><td>string · uuid</td><td>—</td></tr><tr><td><code>publishMode</code></td><td>enum</td><td><span class='oid'>значения: <code>Свободный</code>, <code>С утверждением</code></span></td></tr><tr><td><code>sessions</code><span class="req">*</span></td><td>array&lt;SessionCreate&gt;</td><td>—</td></tr></table>
+<table><tr><th>Код</th><th>Смысл</th><th>Схема ответа</th></tr><tr><td><code>201</code></td><td>Черновик создан</td><td><a href=#Event><code>Event</code></a></td></tr><tr><td><code>401</code></td><td>Нет токена или истёк срок</td><td><a href=#Error><code>Error</code></a></td></tr><tr><td><code>403</code></td><td>Нет прав на объект</td><td><a href=#Error><code>Error</code></a></td></tr><tr><td><code>422</code></td><td>Ошибка валидации полей</td><td><a href=#Error><code>Error</code></a></td></tr><tr><td><code>500</code></td><td>Внутренняя ошибка сервиса</td><td><a href=#Error><code>Error</code></a></td></tr></table>
+</div>
+<div class='op'>
+<div class='head'><span class='m patch'>PATCH</span><span class='path'>/events/{id}</span></div>
+<p class='sum'>Изменить мероприятие</p>
+<p class='desc'>Доступно владельцу и администратору. Черновик можно менять свободно, опубликованное — только до первой записи.</p>
+<p class='oid'>patchEvent · Bearer JWT</p>
+<table><tr><th>Параметр</th><th>Где</th><th>Тип</th><th>Обязателен</th><th>Смысл</th></tr><tr><td><code>id</code></td><td>path</td><td>string · uuid</td><td><span class="req">обязателен</span></td><td>Идентификатор мероприятия</td></tr><tr><td><code>If-Match</code></td><td>header</td><td>string</td><td>нет</td><td>Номер версии, полученный из карточки</td></tr></table>
+<p class='oid'>Тело запроса <code>application/json</code> → <a href='#EventPatch'><code>EventPatch</code></a> · обязателен</p>
+<table><tr><th>Поле</th><th>Тип</th><th>Смысл</th></tr><tr><td><code>title</code></td><td>string</td><td><span class='oid'>minLength=5; maxLength=200</span></td></tr><tr><td><code>description</code></td><td>string</td><td><span class='oid'>maxLength=4000</span></td></tr><tr><td><code>posterUrl</code></td><td>string</td><td><span class='oid'>maxLength=255</span></td></tr><tr><td><code>categoryCode</code></td><td>string</td><td>—</td></tr><tr><td><code>capacity</code></td><td>integer</td><td><span class='oid'>minimum=1</span></td></tr><tr><td><code>publishMode</code></td><td>enum</td><td><span class='oid'>значения: <code>Свободный</code>, <code>С утверждением</code></span></td></tr></table>
+<table><tr><th>Код</th><th>Смысл</th><th>Схема ответа</th></tr><tr><td><code>200</code></td><td>Обновлённое мероприятие</td><td><a href=#Event><code>Event</code></a></td></tr><tr><td><code>401</code></td><td>Нет токена или истёк срок</td><td><a href=#Error><code>Error</code></a></td></tr><tr><td><code>403</code></td><td>Нет прав на объект</td><td><a href=#Error><code>Error</code></a></td></tr><tr><td><code>404</code></td><td>Объект не найден или скрыт от этой роли</td><td><a href=#Error><code>Error</code></a></td></tr><tr><td><code>409</code></td><td>Конфликт состояния</td><td><a href=#Error><code>Error</code></a></td></tr><tr><td><code>422</code></td><td>Ошибка валидации полей</td><td><a href=#Error><code>Error</code></a></td></tr></table>
+</div>
+<div class='op'>
+<div class='head'><span class='m post'>POST</span><span class='path'>/events/{id}/submit</span></div>
+<p class='sum'>Отправить мероприятие на публикацию</p>
+<p class='desc'>Если режим публикации — «С утверждением», создаётся заявка на модерацию и мероприятие переходит в статус «На модерации». Иначе публикуется сразу.</p>
+<p class='oid'>submitEvent · Bearer JWT</p>
+<table><tr><th>Параметр</th><th>Где</th><th>Тип</th><th>Обязателен</th><th>Смысл</th></tr><tr><td><code>id</code></td><td>path</td><td>string · uuid</td><td><span class="req">обязателен</span></td><td>Идентификатор мероприятия</td></tr></table>
+<p class='oid'>Тело запроса <code>application/json</code> · необязателен</p>
+<table><tr><th>Поле</th><th>Тип</th><th>Смысл</th></tr><tr><td><code>comment</code></td><td>string</td><td>Пояснение для модератора <span class='oid'>maxLength=300</span></td></tr></table>
+<table><tr><th>Код</th><th>Смысл</th><th>Схема ответа</th></tr><tr><td><code>200</code></td><td>Мероприятие отправлено или опубликовано</td><td><a href=#Event><code>Event</code></a></td></tr><tr><td><code>401</code></td><td>Нет токена или истёк срок</td><td><a href=#Error><code>Error</code></a></td></tr><tr><td><code>403</code></td><td>Нет прав на объект</td><td><a href=#Error><code>Error</code></a></td></tr><tr><td><code>404</code></td><td>Объект не найден или скрыт от этой роли</td><td><a href=#Error><code>Error</code></a></td></tr><tr><td><code>422</code></td><td>Ошибка валидации полей</td><td><a href=#Error><code>Error</code></a></td></tr></table>
+</div>
+<div class='op'>
+<div class='head'><span class='m get'>GET</span><span class='path'>/events/{id}/report</span></div>
+<p class='sum'>Сводка по мероприятию</p>
+<p class='oid'>getEventReport · Bearer JWT</p>
+<table><tr><th>Параметр</th><th>Где</th><th>Тип</th><th>Обязателен</th><th>Смысл</th></tr><tr><td><code>id</code></td><td>path</td><td>string · uuid</td><td><span class="req">обязателен</span></td><td>Идентификатор мероприятия</td></tr></table>
+<table><tr><th>Код</th><th>Смысл</th><th>Схема ответа</th></tr><tr><td><code>200</code></td><td>Сводка</td><td><a href=#Report><code>Report</code></a></td></tr><tr><td><code>401</code></td><td>Нет токена или истёк срок</td><td><a href=#Error><code>Error</code></a></td></tr><tr><td><code>403</code></td><td>Нет прав на объект</td><td><a href=#Error><code>Error</code></a></td></tr><tr><td><code>404</code></td><td>Объект не найден или скрыт от этой роли</td><td><a href=#Error><code>Error</code></a></td></tr></table>
+</div>
+<div class='op'>
+<div class='head'><span class='m get'>GET</span><span class='path'>/sessions/{sid}/participants</span></div>
+<p class='sum'>Список участников сессии</p>
+<p class='oid'>listParticipants · Bearer JWT</p>
+<table><tr><th>Параметр</th><th>Где</th><th>Тип</th><th>Обязателен</th><th>Смысл</th></tr><tr><td><code>sid</code></td><td>path</td><td>string · uuid</td><td><span class="req">обязателен</span></td><td>Идентификатор сессии</td></tr><tr><td><code>q</code></td><td>query</td><td>string</td><td>нет</td><td>Поиск по ФИО и группе</td></tr><tr><td><code>status</code></td><td>query</td><td>enum</td><td>нет</td><td>—</td></tr></table>
+<table><tr><th>Код</th><th>Смысл</th><th>Схема ответа</th></tr><tr><td><code>200</code></td><td>Участники</td><td>—</td></tr><tr><td><code>401</code></td><td>Нет токена или истёк срок</td><td><a href=#Error><code>Error</code></a></td></tr><tr><td><code>403</code></td><td>Нет прав на объект</td><td><a href=#Error><code>Error</code></a></td></tr><tr><td><code>404</code></td><td>Объект не найден или скрыт от этой роли</td><td><a href=#Error><code>Error</code></a></td></tr></table>
+</div>
+<div class='op'>
+<div class='head'><span class='m get'>GET</span><span class='path'>/sessions/{sid}/export</span></div>
+<p class='sum'>Выгрузка списка участников</p>
+<p class='desc'>CSV (UTF-8 с BOM для Excel) или XLSX. Контактных данных в выгрузке нет.</p>
+<p class='oid'>exportParticipants · Bearer JWT</p>
+<table><tr><th>Параметр</th><th>Где</th><th>Тип</th><th>Обязателен</th><th>Смысл</th></tr><tr><td><code>sid</code></td><td>path</td><td>string · uuid</td><td><span class="req">обязателен</span></td><td>Идентификатор сессии</td></tr><tr><td><code>format</code></td><td>query</td><td>enum</td><td>нет</td><td>—</td></tr></table>
+<table><tr><th>Код</th><th>Смысл</th><th>Схема ответа</th></tr><tr><td><code>200</code></td><td>Файл</td><td>—</td></tr><tr><td><code>401</code></td><td>Нет токена или истёк срок</td><td><a href=#Error><code>Error</code></a></td></tr><tr><td><code>403</code></td><td>Нет прав на объект</td><td><a href=#Error><code>Error</code></a></td></tr><tr><td><code>404</code></td><td>Объект не найден или скрыт от этой роли</td><td><a href=#Error><code>Error</code></a></td></tr></table>
+</div>
+<h2>Модерация</h2>
+<div class='op'>
+<div class='head'><span class='m get'>GET</span><span class='path'>/moderation/requests</span></div>
+<p class='sum'>Очередь заявок на модерацию</p>
+<p class='oid'>listModerationRequests · Bearer JWT</p>
+<table><tr><th>Параметр</th><th>Где</th><th>Тип</th><th>Обязателен</th><th>Смысл</th></tr><tr><td><code>status</code></td><td>query</td><td>enum</td><td>нет</td><td>—</td></tr></table>
+<table><tr><th>Код</th><th>Смысл</th><th>Схема ответа</th></tr><tr><td><code>200</code></td><td>Заявки, отсортированные по сроку рассмотрения</td><td>—</td></tr><tr><td><code>401</code></td><td>Нет токена или истёк срок</td><td><a href=#Error><code>Error</code></a></td></tr><tr><td><code>403</code></td><td>Нет прав на объект</td><td><a href=#Error><code>Error</code></a></td></tr></table>
+</div>
+<div class='op'>
+<div class='head'><span class='m post'>POST</span><span class='path'>/moderation/requests/{id}/decision</span></div>
+<p class='sum'>Принять решение по заявке</p>
+<p class='desc'>Возврат требует комментария не короче 10 символов. Решение неизменяемо; повторный вызов даёт 409 `ALREADY_MODERATED`.</p>
+<p class='oid'>decideModerationRequest · Bearer JWT</p>
+<table><tr><th>Параметр</th><th>Где</th><th>Тип</th><th>Обязателен</th><th>Смысл</th></tr><tr><td><code>id</code></td><td>path</td><td>string · uuid</td><td><span class="req">обязателен</span></td><td>—</td></tr></table>
+<p class='oid'>Тело запроса <code>application/json</code> → <a href='#DecisionCreate'><code>DecisionCreate</code></a> · обязателен</p>
+<table><tr><th>Поле</th><th>Тип</th><th>Смысл</th></tr><tr><td><code>type</code><span class="req">*</span></td><td>enum</td><td><span class='oid'>значения: <code>Утвердить</code>, <code>Вернуть</code></span></td></tr><tr><td><code>comment</code></td><td>string</td><td>Обязателен при возврате <span class='oid'>minLength=10; maxLength=1000</span></td></tr></table>
+<table><tr><th>Код</th><th>Смысл</th><th>Схема ответа</th></tr><tr><td><code>201</code></td><td>Решение зафиксировано</td><td><a href=#Decision><code>Decision</code></a></td></tr><tr><td><code>401</code></td><td>Нет токена или истёк срок</td><td><a href=#Error><code>Error</code></a></td></tr><tr><td><code>403</code></td><td>Нет прав на объект</td><td><a href=#Error><code>Error</code></a></td></tr><tr><td><code>404</code></td><td>Объект не найден или скрыт от этой роли</td><td><a href=#Error><code>Error</code></a></td></tr><tr><td><code>409</code></td><td>Конфликт состояния</td><td><a href=#Error><code>Error</code></a></td></tr><tr><td><code>422</code></td><td>Ошибка валидации полей</td><td><a href=#Error><code>Error</code></a></td></tr></table>
+</div>
+<h2>Администрирование</h2>
+<div class='op'>
+<div class='head'><span class='m post'>POST</span><span class='path'>/clubs</span></div>
+<p class='sum'>Создать клуб</p>
+<p class='oid'>createClub · Bearer JWT</p>
+<p class='oid'>Тело запроса <code>application/json</code> → <a href='#ClubCreate'><code>ClubCreate</code></a> · обязателен</p>
+<table><tr><th>Поле</th><th>Тип</th><th>Смысл</th></tr><tr><td><code>name</code><span class="req">*</span></td><td>string</td><td><span class='oid'>minLength=2; maxLength=120</span></td></tr><tr><td><code>description</code></td><td>string</td><td><span class='oid'>maxLength=2000</span></td></tr><tr><td><code>logoUrl</code></td><td>string</td><td><span class='oid'>maxLength=255</span></td></tr></table>
+<table><tr><th>Код</th><th>Смысл</th><th>Схема ответа</th></tr><tr><td><code>201</code></td><td>Клуб создан</td><td><a href=#Club><code>Club</code></a></td></tr><tr><td><code>401</code></td><td>Нет токена или истёк срок</td><td><a href=#Error><code>Error</code></a></td></tr><tr><td><code>403</code></td><td>Нет прав на объект</td><td><a href=#Error><code>Error</code></a></td></tr><tr><td><code>409</code></td><td>Конфликт состояния</td><td><a href=#Error><code>Error</code></a></td></tr><tr><td><code>422</code></td><td>Ошибка валидации полей</td><td><a href=#Error><code>Error</code></a></td></tr></table>
+</div>
+<div class='op'>
+<div class='head'><span class='m patch'>PATCH</span><span class='path'>/clubs/{id}</span></div>
+<p class='sum'>Изменить или закрыть клуб</p>
+<p class='oid'>patchClub · Bearer JWT</p>
+<table><tr><th>Параметр</th><th>Где</th><th>Тип</th><th>Обязателен</th><th>Смысл</th></tr><tr><td><code>id</code></td><td>path</td><td>string · uuid</td><td><span class="req">обязателен</span></td><td>—</td></tr></table>
+<p class='oid'>Тело запроса <code>application/json</code> → <a href='#ClubPatch'><code>ClubPatch</code></a> · обязателен</p>
+<table><tr><th>Поле</th><th>Тип</th><th>Смысл</th></tr><tr><td><code>name</code></td><td>string</td><td><span class='oid'>minLength=2; maxLength=120</span></td></tr><tr><td><code>description</code></td><td>string</td><td>—</td></tr><tr><td><code>isActive</code></td><td>boolean</td><td>—</td></tr></table>
+<table><tr><th>Код</th><th>Смысл</th><th>Схема ответа</th></tr><tr><td><code>200</code></td><td>Клуб обновлён</td><td><a href=#Club><code>Club</code></a></td></tr><tr><td><code>401</code></td><td>Нет токена или истёк срок</td><td><a href=#Error><code>Error</code></a></td></tr><tr><td><code>403</code></td><td>Нет прав на объект</td><td><a href=#Error><code>Error</code></a></td></tr><tr><td><code>404</code></td><td>Объект не найден или скрыт от этой роли</td><td><a href=#Error><code>Error</code></a></td></tr><tr><td><code>422</code></td><td>Ошибка валидации полей</td><td><a href=#Error><code>Error</code></a></td></tr></table>
+</div>
+<div class='op'>
+<div class='head'><span class='m patch'>PATCH</span><span class='path'>/users/{id}/role</span></div>
+<p class='sum'>Назначить роль пользователю</p>
+<p class='desc'>Изменение попадает в журнал аудита. Отозвать роль у последнего администратора нельзя — 409.</p>
+<p class='oid'>patchUserRole · Bearer JWT</p>
+<table><tr><th>Параметр</th><th>Где</th><th>Тип</th><th>Обязателен</th><th>Смысл</th></tr><tr><td><code>id</code></td><td>path</td><td>string · uuid</td><td><span class="req">обязателен</span></td><td>—</td></tr></table>
+<p class='oid'>Тело запроса <code>application/json</code> → <a href='#RoleUpdate'><code>RoleUpdate</code></a> · обязателен</p>
+<table><tr><th>Поле</th><th>Тип</th><th>Смысл</th></tr><tr><td><code>role</code><span class="req">*</span></td><td>enum</td><td><span class='oid'>значения: <code>Гость</code>, <code>Студент</code>, <code>Организатор</code>, <code>Администратор</code></span></td></tr><tr><td><code>reason</code></td><td>string</td><td><span class='oid'>minLength=5; maxLength=300</span></td></tr></table>
+<table><tr><th>Код</th><th>Смысл</th><th>Схема ответа</th></tr><tr><td><code>200</code></td><td>Роль изменена</td><td><a href=#User><code>User</code></a></td></tr><tr><td><code>401</code></td><td>Нет токена или истёк срок</td><td><a href=#Error><code>Error</code></a></td></tr><tr><td><code>403</code></td><td>Нет прав на объект</td><td><a href=#Error><code>Error</code></a></td></tr><tr><td><code>404</code></td><td>Объект не найден или скрыт от этой роли</td><td><a href=#Error><code>Error</code></a></td></tr><tr><td><code>409</code></td><td>Конфликт состояния</td><td><a href=#Error><code>Error</code></a></td></tr><tr><td><code>422</code></td><td>Ошибка валидации полей</td><td><a href=#Error><code>Error</code></a></td></tr></table>
+</div>
+<h2>Схемы данных (28 шт.)</h2>
+<details id='Error'><summary>Error</summary><table><tr><th>Поле</th><th>Тип</th><th>Смысл</th></tr><tr><td><code>code</code><span class="req">*</span></td><td>enum</td><td><span class='oid'>значения: <code>BAD_REQUEST</code>, <code>UNAUTHENTICATED</code>, <code>TOKEN_EXPIRED</code>, <code>FORBIDDEN</code>, <code>NOT_OWNER</code>, <code>ROLE_REQUIRED</code>, <code>NOT_FOUND</code>, <code>NO_SEATS</code></span></td></tr><tr><td><code>message</code><span class="req">*</span></td><td>string</td><td>Текст для пользователя, на русском <span class='oid'>пример: <code>Свободных мест нет. Можно встать в лист ожидания.</code></span></td></tr><tr><td><code>field</code></td><td>string</td><td>Поле, из-за которого ошибка, для подсветки в форме <span class='oid'>пример: <code>comment</code></span></td></tr><tr><td><code>traceId</code></td><td>string · uuid</td><td>—</td></tr></table></details>
+<details id='EventShort'><summary>EventShort</summary><table><tr><th>Поле</th><th>Тип</th><th>Смысл</th></tr><tr><td><code>id</code></td><td>string · uuid</td><td>—</td></tr><tr><td><code>title</code></td><td>string</td><td><span class='oid'>пример: <code>Хакатон FPMI-2026</code></span></td></tr><tr><td><code>categoryCode</code></td><td>string</td><td><span class='oid'>пример: <code>it</code></span></td></tr><tr><td><code>posterUrl</code></td><td>string</td><td>—</td></tr><tr><td><code>nearestStartsAt</code></td><td>string · date-time</td><td>—</td></tr><tr><td><code>freeSeats</code></td><td>integer</td><td><span class='oid'>пример: <code>12</code></span></td></tr><tr><td><code>status</code></td><td>EventStatus</td><td>—</td></tr></table></details>
+<details id='EventStatus'><summary>EventStatus</summary><p class='desc'>Тип: <code>enum</code><br><span class='req'>Черновик · На модерации · Опубликовано · Отклонено · Отменено · Завершено</span></p></details>
+<details id='Event'><summary>Event</summary><p class='oid'>наследует <a href='#EventShort'><code>EventShort</code></a></p><table><tr><th>Поле</th><th>Тип</th><th>Смысл</th></tr><tr><td><code>id</code></td><td>string · uuid</td><td>—</td></tr><tr><td><code>title</code></td><td>string</td><td><span class='oid'>пример: <code>Хакатон FPMI-2026</code></span></td></tr><tr><td><code>categoryCode</code></td><td>string</td><td><span class='oid'>пример: <code>it</code></span></td></tr><tr><td><code>posterUrl</code></td><td>string</td><td>—</td></tr><tr><td><code>nearestStartsAt</code></td><td>string · date-time</td><td>—</td></tr><tr><td><code>freeSeats</code></td><td>integer</td><td><span class='oid'>пример: <code>12</code></span></td></tr><tr><td><code>status</code></td><td>EventStatus</td><td>—</td></tr><tr><td><code>description</code></td><td>string</td><td>—</td></tr><tr><td><code>clubId</code></td><td>string · uuid</td><td>—</td></tr><tr><td><code>publishMode</code></td><td>enum</td><td><span class='oid'>значения: <code>Свободный</code>, <code>С утверждением</code></span></td></tr><tr><td><code>capacity</code></td><td>integer</td><td>—</td></tr><tr><td><code>version</code></td><td>integer</td><td>Номер версии для If-Match</td></tr><tr><td><code>sessions</code></td><td>array&lt;Session&gt;</td><td>—</td></tr><tr><td><code>createdAt</code></td><td>string · date-time</td><td>—</td></tr><tr><td><code>publishedAt</code></td><td>string · date-time</td><td>—</td></tr></table></details>
+<details id='EventCreate'><summary>EventCreate</summary><table><tr><th>Поле</th><th>Тип</th><th>Смысл</th></tr><tr><td><code>title</code><span class="req">*</span></td><td>string</td><td><span class='oid'>minLength=5; maxLength=200</span></td></tr><tr><td><code>description</code></td><td>string</td><td><span class='oid'>maxLength=4000</span></td></tr><tr><td><code>posterUrl</code></td><td>string</td><td><span class='oid'>maxLength=255</span></td></tr><tr><td><code>categoryCode</code><span class="req">*</span></td><td>string</td><td>—</td></tr><tr><td><code>clubId</code><span class="req">*</span></td><td>string · uuid</td><td>—</td></tr><tr><td><code>publishMode</code></td><td>enum</td><td><span class='oid'>значения: <code>Свободный</code>, <code>С утверждением</code></span></td></tr><tr><td><code>sessions</code><span class="req">*</span></td><td>array&lt;SessionCreate&gt;</td><td>—</td></tr></table></details>
+<details id='EventPatch'><summary>EventPatch</summary><table><tr><th>Поле</th><th>Тип</th><th>Смысл</th></tr><tr><td><code>title</code></td><td>string</td><td><span class='oid'>minLength=5; maxLength=200</span></td></tr><tr><td><code>description</code></td><td>string</td><td><span class='oid'>maxLength=4000</span></td></tr><tr><td><code>posterUrl</code></td><td>string</td><td><span class='oid'>maxLength=255</span></td></tr><tr><td><code>categoryCode</code></td><td>string</td><td>—</td></tr><tr><td><code>capacity</code></td><td>integer</td><td><span class='oid'>minimum=1</span></td></tr><tr><td><code>publishMode</code></td><td>enum</td><td><span class='oid'>значения: <code>Свободный</code>, <code>С утверждением</code></span></td></tr></table></details>
+<details id='Session'><summary>Session</summary><table><tr><th>Поле</th><th>Тип</th><th>Смысл</th></tr><tr><td><code>id</code></td><td>string · uuid</td><td>—</td></tr><tr><td><code>startsAt</code></td><td>string · date-time</td><td>—</td></tr><tr><td><code>endsAt</code></td><td>string · date-time</td><td>—</td></tr><tr><td><code>building</code></td><td>string</td><td>—</td></tr><tr><td><code>room</code></td><td>string</td><td>—</td></tr><tr><td><code>capacity</code></td><td>integer</td><td>—</td></tr><tr><td><code>taken</code></td><td>integer</td><td>—</td></tr><tr><td><code>freeSeats</code></td><td>integer</td><td>—</td></tr></table></details>
+<details id='SessionCreate'><summary>SessionCreate</summary><table><tr><th>Поле</th><th>Тип</th><th>Смысл</th></tr><tr><td><code>startsAt</code><span class="req">*</span></td><td>string · date-time</td><td>—</td></tr><tr><td><code>endsAt</code><span class="req">*</span></td><td>string · date-time</td><td>—</td></tr><tr><td><code>building</code><span class="req">*</span></td><td>string</td><td><span class='oid'>maxLength=120</span></td></tr><tr><td><code>room</code></td><td>string</td><td><span class='oid'>maxLength=60</span></td></tr><tr><td><code>capacity</code><span class="req">*</span></td><td>integer</td><td><span class='oid'>minimum=1</span></td></tr></table></details>
+<details id='RegistrationCreate'><summary>RegistrationCreate</summary><table><tr><th>Поле</th><th>Тип</th><th>Смысл</th></tr><tr><td><code>source</code></td><td>enum</td><td><span class='oid'>значения: <code>Приложение</code>, <code>Веб</code>, <code>Регистрация на месте</code></span></td></tr></table></details>
+<details id='Registration'><summary>Registration</summary><table><tr><th>Поле</th><th>Тип</th><th>Смысл</th></tr><tr><td><code>id</code></td><td>string · uuid</td><td>—</td></tr><tr><td><code>sessionId</code></td><td>string · uuid</td><td>—</td></tr><tr><td><code>userId</code></td><td>string · uuid</td><td>—</td></tr><tr><td><code>status</code></td><td>enum</td><td><span class='oid'>значения: <code>Записан</code>, <code>В листе ожидания</code>, <code>Отменено</code>, <code>Посетил</code>, <code>Неявка</code></span></td></tr><tr><td><code>waitlistPosition</code></td><td>integer</td><td>—</td></tr><tr><td><code>source</code></td><td>enum</td><td><span class='oid'>значения: <code>Приложение</code>, <code>Веб</code>, <code>Регистрация на месте</code></span></td></tr><tr><td><code>ticket</code></td><td>Ticket</td><td>—</td></tr><tr><td><code>createdAt</code></td><td>string · date-time</td><td>—</td></tr><tr><td><code>attendedAt</code></td><td>string · date-time</td><td>—</td></tr></table></details>
+<details id='Ticket'><summary>Ticket</summary><table><tr><th>Поле</th><th>Тип</th><th>Смысл</th></tr><tr><td><code>id</code></td><td>string · uuid</td><td>—</td></tr><tr><td><code>registrationId</code></td><td>string · uuid</td><td>—</td></tr><tr><td><code>qrPayload</code></td><td>string</td><td>Строка для QR, подписана Ed25519 <span class='oid'>пример: <code>e5000000-0000-4000-8000-000000000001|c3000000-0000-4000-8000-000000000001|2026-10-21T10:00:00Z</code></span></td></tr><tr><td><code>status</code></td><td>enum</td><td><span class='oid'>значения: <code>Действителен</code>, <code>Использован</code>, <code>Отозван</code></span></td></tr><tr><td><code>issuedAt</code></td><td>string · date-time</td><td>—</td></tr><tr><td><code>usedAt</code></td><td>string · date-time</td><td>—</td></tr></table></details>
+<details id='CheckInRequest'><summary>CheckInRequest</summary><table><tr><th>Поле</th><th>Тип</th><th>Смысл</th></tr><tr><td><code>qrPayload</code><span class="req">*</span></td><td>string</td><td><span class='oid'>maxLength=300</span></td></tr><tr><td><code>scannedAt</code><span class="req">*</span></td><td>string · date-time</td><td>—</td></tr><tr><td><code>deviceId</code></td><td>string</td><td><span class='oid'>maxLength=64</span></td></tr></table></details>
+<details id='CheckInResult'><summary>CheckInResult</summary><table><tr><th>Поле</th><th>Тип</th><th>Смысл</th></tr><tr><td><code>ticketId</code></td><td>string · uuid</td><td>—</td></tr><tr><td><code>alreadyMarked</code></td><td>boolean</td><td>—</td></tr><tr><td><code>participantName</code></td><td>string</td><td><span class='oid'>пример: <code>Иванов Иван Иванович</code></span></td></tr><tr><td><code>sessionId</code></td><td>string · uuid</td><td>—</td></tr><tr><td><code>markedAt</code></td><td>string · date-time</td><td>—</td></tr></table></details>
+<details id='BatchCheckInRequest'><summary>BatchCheckInRequest</summary><table><tr><th>Поле</th><th>Тип</th><th>Смысл</th></tr><tr><td><code>deviceId</code></td><td>string</td><td>—</td></tr><tr><td><code>items</code><span class="req">*</span></td><td>array&lt;CheckInRequest&gt;</td><td>—</td></tr></table></details>
+<details id='Participant'><summary>Participant</summary><table><tr><th>Поле</th><th>Тип</th><th>Смысл</th></tr><tr><td><code>registrationId</code></td><td>string · uuid</td><td>—</td></tr><tr><td><code>fullName</code></td><td>string</td><td>—</td></tr><tr><td><code>studyGroup</code></td><td>string</td><td>—</td></tr><tr><td><code>status</code></td><td>enum</td><td><span class='oid'>значения: <code>Записан</code>, <code>В листе ожидания</code>, <code>Отменено</code>, <code>Посетил</code>, <code>Неявка</code></span></td></tr><tr><td><code>attendedAt</code></td><td>string · date-time</td><td>—</td></tr></table></details>
+<details id='ReviewCreate'><summary>ReviewCreate</summary><table><tr><th>Поле</th><th>Тип</th><th>Смысл</th></tr><tr><td><code>eventId</code><span class="req">*</span></td><td>string · uuid</td><td>—</td></tr><tr><td><code>rating</code><span class="req">*</span></td><td>integer</td><td><span class='oid'>minimum=1; maximum=5</span></td></tr><tr><td><code>text</code></td><td>string</td><td><span class='oid'>maxLength=2000</span></td></tr></table></details>
+<details id='Review'><summary>Review</summary><table><tr><th>Поле</th><th>Тип</th><th>Смысл</th></tr><tr><td><code>id</code></td><td>string · uuid</td><td>—</td></tr><tr><td><code>eventId</code></td><td>string · uuid</td><td>—</td></tr><tr><td><code>rating</code></td><td>integer</td><td>—</td></tr><tr><td><code>text</code></td><td>string</td><td>—</td></tr><tr><td><code>status</code></td><td>enum</td><td><span class='oid'>значения: <code>На проверке</code>, <code>Опубликован</code>, <code>Скрыт</code></span></td></tr><tr><td><code>createdAt</code></td><td>string · date-time</td><td>—</td></tr></table></details>
+<details id='Category'><summary>Category</summary><table><tr><th>Поле</th><th>Тип</th><th>Смысл</th></tr><tr><td><code>code</code></td><td>string</td><td><span class='oid'>пример: <code>it</code></span></td></tr><tr><td><code>name</code></td><td>string</td><td><span class='oid'>пример: <code>Информационные технологии</code></span></td></tr><tr><td><code>sortOrder</code></td><td>integer</td><td><span class='oid'>пример: <code>1</code></span></td></tr></table></details>
+<details id='Club'><summary>Club</summary><table><tr><th>Поле</th><th>Тип</th><th>Смысл</th></tr><tr><td><code>id</code></td><td>string · uuid</td><td>—</td></tr><tr><td><code>name</code></td><td>string</td><td>—</td></tr><tr><td><code>description</code></td><td>string</td><td>—</td></tr><tr><td><code>logoUrl</code></td><td>string</td><td>—</td></tr><tr><td><code>isActive</code></td><td>boolean</td><td>—</td></tr></table></details>
+<details id='ClubCreate'><summary>ClubCreate</summary><table><tr><th>Поле</th><th>Тип</th><th>Смысл</th></tr><tr><td><code>name</code><span class="req">*</span></td><td>string</td><td><span class='oid'>minLength=2; maxLength=120</span></td></tr><tr><td><code>description</code></td><td>string</td><td><span class='oid'>maxLength=2000</span></td></tr><tr><td><code>logoUrl</code></td><td>string</td><td><span class='oid'>maxLength=255</span></td></tr></table></details>
+<details id='ClubPatch'><summary>ClubPatch</summary><table><tr><th>Поле</th><th>Тип</th><th>Смысл</th></tr><tr><td><code>name</code></td><td>string</td><td><span class='oid'>minLength=2; maxLength=120</span></td></tr><tr><td><code>description</code></td><td>string</td><td>—</td></tr><tr><td><code>isActive</code></td><td>boolean</td><td>—</td></tr></table></details>
+<details id='User'><summary>User</summary><table><tr><th>Поле</th><th>Тип</th><th>Смысл</th></tr><tr><td><code>id</code></td><td>string · uuid</td><td>—</td></tr><tr><td><code>fullName</code></td><td>string</td><td>—</td></tr><tr><td><code>email</code></td><td>string · email</td><td>—</td></tr><tr><td><code>faculty</code></td><td>string</td><td>—</td></tr><tr><td><code>studyGroup</code></td><td>string</td><td>—</td></tr><tr><td><code>role</code></td><td>enum</td><td><span class='oid'>значения: <code>Гость</code>, <code>Студент</code>, <code>Организатор</code>, <code>Администратор</code></span></td></tr><tr><td><code>clubs</code></td><td>array&lt;object&gt;</td><td>—</td></tr></table></details>
+<details id='RoleUpdate'><summary>RoleUpdate</summary><table><tr><th>Поле</th><th>Тип</th><th>Смысл</th></tr><tr><td><code>role</code><span class="req">*</span></td><td>enum</td><td><span class='oid'>значения: <code>Гость</code>, <code>Студент</code>, <code>Организатор</code>, <code>Администратор</code></span></td></tr><tr><td><code>reason</code></td><td>string</td><td><span class='oid'>minLength=5; maxLength=300</span></td></tr></table></details>
+<details id='NotificationSettings'><summary>NotificationSettings</summary><table><tr><th>Поле</th><th>Тип</th><th>Смысл</th></tr><tr><td><code>push</code></td><td>boolean</td><td><span class='oid'>пример: <code>True</code></span></td></tr><tr><td><code>email</code></td><td>boolean</td><td><span class='oid'>пример: <code>True</code></span></td></tr><tr><td><code>reminders</code></td><td>boolean</td><td>Напоминания за 24 и 2 часа; отключение не затрагивает подтверждение записи <span class='oid'>пример: <code>True</code></span></td></tr></table></details>
+<details id='ModerationRequest'><summary>ModerationRequest</summary><table><tr><th>Поле</th><th>Тип</th><th>Смысл</th></tr><tr><td><code>id</code></td><td>string · uuid</td><td>—</td></tr><tr><td><code>eventId</code></td><td>string · uuid</td><td>—</td></tr><tr><td><code>eventTitle</code></td><td>string</td><td>—</td></tr><tr><td><code>version</code></td><td>integer</td><td>—</td></tr><tr><td><code>submittedAt</code></td><td>string · date-time</td><td>—</td></tr><tr><td><code>dueAt</code></td><td>string · date-time</td><td>—</td></tr><tr><td><code>status</code></td><td>enum</td><td><span class='oid'>значения: <code>На рассмотрении</code>, <code>Утверждено</code>, <code>Возвращено</code></span></td></tr></table></details>
+<details id='DecisionCreate'><summary>DecisionCreate</summary><table><tr><th>Поле</th><th>Тип</th><th>Смысл</th></tr><tr><td><code>type</code><span class="req">*</span></td><td>enum</td><td><span class='oid'>значения: <code>Утвердить</code>, <code>Вернуть</code></span></td></tr><tr><td><code>comment</code></td><td>string</td><td>Обязателен при возврате <span class='oid'>minLength=10; maxLength=1000</span></td></tr></table></details>
+<details id='Decision'><summary>Decision</summary><table><tr><th>Поле</th><th>Тип</th><th>Смысл</th></tr><tr><td><code>id</code></td><td>string · uuid</td><td>—</td></tr><tr><td><code>requestId</code></td><td>string · uuid</td><td>—</td></tr><tr><td><code>type</code></td><td>enum</td><td><span class='oid'>значения: <code>Утвердить</code>, <code>Вернуть</code></span></td></tr><tr><td><code>comment</code></td><td>string</td><td>—</td></tr><tr><td><code>adminId</code></td><td>string · uuid</td><td>—</td></tr><tr><td><code>decidedAt</code></td><td>string · date-time</td><td>—</td></tr></table></details>
+<details id='Report'><summary>Report</summary><table><tr><th>Поле</th><th>Тип</th><th>Смысл</th></tr><tr><td><code>registered</code></td><td>integer</td><td><span class='oid'>пример: <code>87</code></span></td></tr><tr><td><code>attended</code></td><td>integer</td><td><span class='oid'>пример: <code>71</code></span></td></tr><tr><td><code>attendanceRate</code></td><td>number · float</td><td><span class='oid'>пример: <code>0.82</code></span></td></tr><tr><td><code>cancelled</code></td><td>integer</td><td><span class='oid'>пример: <code>12</code></span></td></tr><tr><td><code>waitlistLength</code></td><td>integer</td><td><span class='oid'>пример: <code>5</code></span></td></tr><tr><td><code>sessions</code></td><td>integer</td><td><span class='oid'>пример: <code>2</code></span></td></tr></table></details>
+  <footer>
+    <a href="../index.html">← На главную</a> ·
+    <a href="https://github.com/1997yyyy/Human-Machine-Interface-Design-LAB4">Репозиторий</a> ·
+    ПЧМИ, лабораторная работа № 4, группа 13
+  </footer>
+</div>
+</body>
+</html>

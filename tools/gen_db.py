@@ -458,6 +458,7 @@ def md():
            "",
            f"Всего таблиц: **{len(TABLES)}**, полей: **{sum(len(t['fields']) for t in TABLES)}**, "
            f"перечислений: **{len(ENUMS)}**.",
+           "Состав модели и полный текст DDL в читаемом виде — [db/index.html](../db/index.html).",
            "",
            "![ER-диаграмма физической модели](../assets/erd-physical.png)",
            ""]
