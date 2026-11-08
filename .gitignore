@@ -11,6 +11,10 @@ mcp/campus.db
 # Данные PostgreSQL в docker-томе (не в репозитории)
 pgdata/
 
+# Локально установленный Prism (node_modules) для проверки Mock-сервера
+api/mock/.tool/
+*.log
+
 # Редакторы и ОС
 .vscode/
 .idea/

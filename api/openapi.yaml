@@ -836,7 +836,18 @@ paths:
         '403': { $ref: '#/components/responses/Forbidden' }
         '404': { $ref: '#/components/responses/NotFound' }
         '409': { $ref: '#/components/responses/Conflict' }
-        '422': { $ref: '#/components/responses/Validation' }
+        '422':
+          description: Комментарий обязателен при возврате и должен быть не короче 10 символов
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Error' }
+              examples:
+                commentShort:
+                  value:
+                    code: COMMENT_TOO_SHORT
+                    message: Комментарий при возврате должен быть не короче 10 символов
+                    field: comment
+                    traceId: 3f2a1b4c-5d6e-4f70-8a91-b2c3d4e5f606
 
 components:
   securitySchemes:
@@ -1252,11 +1263,11 @@ components:
         application/json:
           schema: { $ref: '#/components/schemas/Error' }
           examples:
-            commentShort:
+            invalidField:
               value:
-                code: COMMENT_TOO_SHORT
-                message: Комментарий при возврате должен быть не короче 10 символов
-                field: comment
+                code: VALIDATION_FAILED
+                message: Поле не прошло проверку формата или ограничения
+                field: title
                 traceId: 3f2a1b4c-5d6e-4f70-8a91-b2c3d4e5f606
     TooManyRequests:
       description: Превышен лимит запросов

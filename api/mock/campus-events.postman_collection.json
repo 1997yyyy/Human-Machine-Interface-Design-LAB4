@@ -1,0 +1,375 @@
+{
+  "info": {
+    "name": "Campus Events — Mock (ЛР № 4)",
+    "description": "Запросы к Mock-серверу, поднятому из api/openapi.yaml. Переменная baseUrl по умолчанию http://localhost:4010.\n\nКоды ошибок выбираются заголовком Prefer: code=<код> — так Mock-сервер отдаёт именно тот ответ, который описан в контракте.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:4010"
+    },
+    {
+      "key": "token",
+      "value": "mock-access-token"
+    }
+  ],
+  "item": [
+    {
+      "name": "Успешные ответы",
+      "item": [
+        {
+          "name": "01 Афиша — 200",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/events",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "events"
+              ],
+              "query": [
+                {
+                  "key": "size",
+                  "value": "2"
+                },
+                {
+                  "key": "page",
+                  "value": "1"
+                }
+              ]
+            },
+            "description": "Ожидаемый ответ: 2xx",
+            "auth": {
+              "type": "noauth"
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "02 Создание мероприятия — 201",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/events",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "events"
+              ]
+            },
+            "description": "Ожидаемый ответ: 2xx",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"Хакатон FPMI-2026\",\n  \"description\": \"Сорок восемь часов на прототип учебного сервиса\",\n  \"categoryCode\": \"it\",\n  \"clubId\": \"a1000000-0000-4000-8000-000000000001\",\n  \"publishMode\": \"Свободный\",\n  \"sessions\": [\n    {\n      \"startsAt\": \"2026-11-20T18:00:00+03:00\",\n      \"endsAt\": \"2026-11-20T21:00:00+03:00\",\n      \"building\": \"Главный корпус\",\n      \"room\": \"ауд. 721\",\n      \"capacity\": 60\n    }\n  ]\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{token}}",
+                  "type": "string"
+                }
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Запись на сессию",
+      "item": [
+        {
+          "name": "03 Запись на сессию — 201",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/sessions/c3000000-0000-4000-8000-000000000001/registrations",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "sessions",
+                "c3000000-0000-4000-8000-000000000001",
+                "registrations"
+              ]
+            },
+            "description": "Ожидаемый ответ: 2xx",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"source\": \"Приложение\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{token}}",
+                  "type": "string"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "04 Мест нет — 409 NO_SEATS",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Prefer",
+                "value": "code=409"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/sessions/c3000000-0000-4000-8000-000000000001/registrations",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "sessions",
+                "c3000000-0000-4000-8000-000000000001",
+                "registrations"
+              ]
+            },
+            "description": "Ожидаемый ответ: 409",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"source\": \"Приложение\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{token}}",
+                  "type": "string"
+                }
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Ошибки",
+      "item": [
+        {
+          "name": "05 Без токена — 401",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/sessions/c3000000-0000-4000-8000-000000000001/registrations",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "sessions",
+                "c3000000-0000-4000-8000-000000000001",
+                "registrations"
+              ]
+            },
+            "description": "Ожидаемый ответ: 2xx",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"source\": \"Приложение\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "auth": {
+              "type": "noauth"
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "06 Чужая организация — 403 NOT_OWNER",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Prefer",
+                "value": "code=403"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/moderation/requests",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "moderation",
+                "requests"
+              ]
+            },
+            "description": "Ожидаемый ответ: 403",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{token}}",
+                  "type": "string"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "07 Невалидное поле — 422 VALIDATION_FAILED",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Prefer",
+                "value": "code=422"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/events",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "events"
+              ]
+            },
+            "description": "Ожидаемый ответ: 422",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{token}}",
+                  "type": "string"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "08 Лимит запросов — 429 RATE_LIMITED",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Prefer",
+                "value": "code=429"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/events",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "events"
+              ]
+            },
+            "description": "Ожидаемый ответ: 429",
+            "auth": {
+              "type": "noauth"
+            }
+          },
+          "response": []
+        }
+      ]
+    }
+  ]
+}
