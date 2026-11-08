@@ -1,0 +1,179 @@
+@startuml campus-events-erd
+' Физическая модель: типы данных СУБД и ограничения. Генерируется tools/gen_db.py.
+!pragma layout smetana
+hide circle
+skinparam shadowing false
+skinparam linetype ortho
+skinparam entity {
+  BackgroundColor #FFFFFF
+  BorderColor #5F5E5A
+  FontSize 9
+}
+
+entity "club" as club {
+  id : uuid <<PK>>
+  name : varchar(120)
+  description : text
+  logo_url : varchar(255)
+  is_active : boolean
+  created_at : timestamptz
+}
+
+entity "category" as category {
+  code : varchar(32) <<PK>>
+  name : varchar(80)
+  sort_order : smallint
+}
+
+entity "app_user" as app_user {
+  id : uuid <<PK>>
+  cas_login : varchar(64)
+  full_name : varchar(160)
+  email : varchar(160)
+  faculty : varchar(120)
+  study_group : varchar(40)
+  role : user_role
+  is_active : boolean
+  created_at : timestamptz
+}
+
+entity "event" as event {
+  id : uuid <<PK>>
+  club_id : uuid <<FK>>
+  category_code : varchar(32) <<FK>>
+  title : varchar(200)
+  description : text
+  poster_url : varchar(255)
+  status : event_status
+  publish_mode : publish_mode
+  capacity : integer
+  owner_id : uuid <<FK>>
+  created_at : timestamptz
+  published_at : timestamptz
+  cancelled_at : timestamptz
+  cancel_reason : varchar(300)
+}
+
+entity "session" as session {
+  id : uuid <<PK>>
+  event_id : uuid <<FK>>
+  starts_at : timestamptz
+  ends_at : timestamptz
+  building : varchar(120)
+  room : varchar(60)
+  capacity : integer
+  taken : integer
+  qr_key_version : smallint
+  created_at : timestamptz
+}
+
+entity "membership" as membership {
+  user_id : uuid <<PK>>
+  club_id : uuid <<PK>>
+  position : club_position
+  from_date : date
+  to_date : date
+}
+
+entity "registration" as registration {
+  id : uuid <<PK>>
+  session_id : uuid <<FK>>
+  user_id : uuid <<FK>>
+  status : registration_status
+  waitlist_position : integer
+  source : reg_source
+  created_at : timestamptz
+  cancelled_at : timestamptz
+  attended_at : timestamptz
+}
+
+entity "ticket" as ticket {
+  id : uuid <<PK>>
+  registration_id : uuid <<FK>>
+  qr_payload : varchar(300)
+  qr_signature : varchar(200)
+  status : ticket_status
+  issued_at : timestamptz
+  used_at : timestamptz
+}
+
+entity "seat_offer" as seat_offer {
+  id : uuid <<PK>>
+  session_id : uuid <<FK>>
+  registration_id : uuid <<FK>>
+  issued_at : timestamptz
+  expires_at : timestamptz
+  status : offer_status
+}
+
+entity "event_version" as event_version {
+  id : uuid <<PK>>
+  event_id : uuid <<FK>>
+  number : integer
+  snapshot : jsonb
+  author_id : uuid <<FK>>
+  created_at : timestamptz
+}
+
+entity "moderation_request" as moderation_request {
+  id : uuid <<PK>>
+  event_id : uuid <<FK>>
+  version_id : uuid <<FK>>
+  submitted_at : timestamptz
+  due_at : timestamptz
+  status : request_status
+}
+
+entity "decision" as decision {
+  id : uuid <<PK>>
+  request_id : uuid <<FK>>
+  type : decision_type
+  comment : text
+  admin_id : uuid <<FK>>
+  decided_at : timestamptz
+}
+
+entity "review" as review {
+  id : uuid <<PK>>
+  event_id : uuid <<FK>>
+  user_id : uuid <<FK>>
+  rating : smallint
+  text : text
+  status : review_status
+  created_at : timestamptz
+}
+
+entity "notification" as notification {
+  id : uuid <<PK>>
+  user_id : uuid <<FK>>
+  registration_id : uuid <<FK>>
+  type : notification_type
+  channel : channel
+  payload : jsonb
+  scheduled_at : timestamptz
+  sent_at : timestamptz
+  read_at : timestamptz
+}
+
+club ||--o{ event : "club_id"
+category ||--o{ event : "category_code"
+app_user ||--o{ event : "owner_id"
+event ||--o{ session : "event_id"
+app_user ||--o{ membership : "user_id"
+club ||--o{ membership : "club_id"
+session ||--o{ registration : "session_id"
+app_user ||--o{ registration : "user_id"
+registration ||--o{ ticket : "registration_id"
+session ||--o{ seat_offer : "session_id"
+registration ||--o{ seat_offer : "registration_id"
+event ||--o{ event_version : "event_id"
+app_user ||--o{ event_version : "author_id"
+event ||--o{ moderation_request : "event_id"
+event_version ||--o{ moderation_request : "version_id"
+moderation_request ||--o{ decision : "request_id"
+app_user ||--o{ decision : "admin_id"
+event ||--o{ review : "event_id"
+app_user ||--o{ review : "user_id"
+app_user ||--o{ notification : "user_id"
+registration ||--o{ notification : "registration_id"
+@enduml

@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Campus Events — ЛР № 4</title>
+<style>
+  :root{
+    --bg:#fbfbf9; --card:#ffffff; --ink:#1b1b19; --muted:#6b6b66;
+    --line:#e2e1da; --accent:#0f6e56; --accent-soft:#e1f5ee;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--ink);
+       font:16px/1.65 -apple-system,"Segoe UI",Roboto,Helvetica,Arial,sans-serif}
+  .wrap{max-width:880px;margin:0 auto;padding:56px 24px 80px}
+  header{border-bottom:1px solid var(--line);padding-bottom:28px;margin-bottom:36px}
+  .eyebrow{font-size:13px;letter-spacing:.08em;text-transform:uppercase;color:var(--accent)}
+  h1{font-size:34px;line-height:1.2;margin:10px 0 12px;font-weight:600}
+  .lead{color:var(--muted);margin:0;max-width:62ch}
+  .stats{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin:32px 0 44px}
+  .stat{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:16px}
+  .stat b{display:block;font-size:26px;font-weight:600;line-height:1.1}
+  .stat span{font-size:13px;color:var(--muted)}
+  h2{font-size:15px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);
+     margin:40px 0 14px;font-weight:500}
+  .card{display:block;background:var(--card);border:1px solid var(--line);border-radius:12px;
+        padding:18px 20px;margin-bottom:10px;text-decoration:none;color:inherit;
+        transition:border-color .15s}
+  .card:hover{border-color:var(--accent)}
+  .card h3{margin:0 0 4px;font-size:17px;font-weight:600}
+  .card p{margin:0;color:var(--muted);font-size:14px}
+  table{width:100%;border-collapse:collapse;font-size:14px;background:var(--card);
+        border:1px solid var(--line);border-radius:12px;overflow:hidden}
+  th,td{text-align:left;padding:10px 14px;border-bottom:1px solid var(--line)}
+  th{background:var(--accent-soft);font-weight:600;font-size:13px}
+  tr:last-child td{border-bottom:none}
+  code{background:#f1efe8;padding:1px 5px;border-radius:4px;font-size:13px}
+  footer{margin-top:48px;padding-top:20px;border-top:1px solid var(--line);
+         color:var(--muted);font-size:13px}
+  @media(max-width:640px){.stats{grid-template-columns:repeat(2,1fr)}h1{font-size:27px}}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header>
+    <div class="eyebrow">ПЧМИ · Лабораторная работа № 4 · группа 13</div>
+    <h1>Campus Events: спецификация API, база данных и MCP-сервер</h1>
+    <p class="lead">Афиша студенческих мероприятий БГУ. Работа продолжает ЛР № 3:
+      требования, модель данных и архитектура оттуда, новое — контракт API,
+      физическая модель с ограничениями целостности и MCP-сервер для AI-ассистента.</p>
+  </header>
+
+  <div class="stats">
+    <div class="stat"><b>20</b><span>вариантов использования</span></div>
+    <div class="stat"><b>14</b><span>таблиц, 13 перечислений</span></div>
+    <div class="stat"><b>29</b><span>операций API</span></div>
+    <div class="stat"><b>3</b><span>инструмента MCP</span></div>
+  </div>
+
+  <h2>Задания</h2>
+  <table>
+    <tr><th>№</th><th>Задание</th><th>Результат</th></tr>
+    <tr><td>1</td><td>Модель требований</td><td>16 историй, 20 UC, реестр «актор → история → UC»</td></tr>
+    <tr><td>2</td><td>Модель базы данных</td><td>Словарь 103 поля, ER-диаграмма, <code>schema.sql</code>, <code>seed.sql</code></td></tr>
+    <tr><td>3</td><td>Маршруты и точки</td><td>14 ресурсов, 28 строк соответствия UC → HTTP</td></tr>
+    <tr><td>4</td><td>OpenAPI и Mock</td><td>Спецификация 3.0.3, 28 схем, примеры запросов</td></tr>
+    <tr><td>5</td><td>MCP-сервер</td><td>3 инструмента, 2 ресурса, 1 промпт, mock-база SQLite</td></tr>
+  </table>
+
+  <h2>Документация</h2>
+  <a class="card" href="docs/01-home.html">
+    <h3>Главная</h3><p>Ключевые решения и навигация по разделам</p></a>
+  <a class="card" href="docs/02-requirements.html">
+    <h3>Функциональные требования</h3><p>16 историй, 20 вариантов использования, что дополнено относительно ЛР № 3</p></a>
+  <a class="card" href="docs/03-files.html">
+    <h3>Диаграмма файлов приложения</h3><p>Структура репозитория и соответствие каталогов слоям архитектуры</p></a>
+  <a class="card" href="docs/04-spec.html">
+    <h3>Дополнительная спецификация</h3><p>Ограничения, безопасность, надёжность, совместимость</p></a>
+  <a class="card" href="docs/05-database.html">
+    <h3>Схема базы данных</h3><p>14 таблиц, словарь полей и типов, ограничения целостности</p></a>
+  <a class="card" href="docs/06-api.html">
+    <h3>API проекта</h3><p>Маршруты, соответствие вариантов использования и методов, коды ошибок</p></a>
+
+  <h2>Артефакты</h2>
+  <a class="card" href="api/openapi.yaml">
+    <h3>api/openapi.yaml</h3><p>Спецификация OpenAPI 3.0.3 — импортируется в SwaggerHub, Postman, Bruno</p></a>
+  <a class="card" href="db/schema.sql">
+    <h3>db/schema.sql</h3><p>DDL физической модели: таблицы, перечисления, индексы, триггеры</p></a>
+  <a class="card" href="mcp/README.md">
+    <h3>mcp/README.md</h3><p>Инструкция по развёртыванию MCP-сервера и примеры запросов</p></a>
+
+  <footer>
+    Campus Events · ЛР № 4 по курсу «Проектирование человеко-машинных интерфейсов» ·
+    БГУ, ФПМИ, кафедра технологий программирования
+  </footer>
+</div>
+<script>
+  // На GitHub Pages Jekyll отдаёт .md как .html; при локальном открытии файла
+  // ссылки ведут на .md, иначе они не работают.
+  if (location.protocol === 'file:') {
+    document.querySelectorAll('a[href^="docs/"][href$=".html"]').forEach(function (a) {
+      a.setAttribute('href', a.getAttribute('href').replace(/\.html$/, '.md'));
+    });
+  }
+</script>
+</body>
+</html>
