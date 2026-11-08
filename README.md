@@ -105,6 +105,11 @@ python mcp/test_mcp.py
 рабочие ветки — от `development` с обязательным прохождением проверки перед
 слиянием в `main`.
 
+![Канбан GitHub Projects: шесть задач по заданиям 1–5 и документации](https://1997yyyy.github.io/Human-Machine-Interface-Design-LAB4/assets/projects-board.png)
+
+Тексты задач для доски — в `docs/issues.md`; каждая задача ссылается на
+артефакты репозитория и критерий приёмки.
+
 ## Структура репозитория
 
 ```
@@ -113,7 +118,11 @@ LAB4/
 ├─ docker-compose.yml         PostgreSQL 16 с автозагрузкой schema.sql и seed.sql
 ├─ requirements.txt           зависимости Python для MCP-сервера
 ├─ index.html                 сайт GitHub Pages
-├─ assets/erd-physical.png    ER-диаграмма физической модели
+├─ assets/                    изображения для README, вики и сайта
+│  ├─ erd-physical.png        ER-диаграмма физической модели
+│  ├─ presentation.pdf        презентация проекта, 12 слайдов
+│  ├─ projects-board.png      канбан GitHub Projects
+│  └─ mock/                   скриншоты ответов Mock-сервера в Bruno (201, 409, 403)
 ├─ db/
 │  ├─ erd.puml                исходник ER-диаграммы
 │  ├─ schema.sql              DDL: 14 таблиц, 13 перечислений, индексы, триггеры
@@ -121,7 +130,9 @@ LAB4/
 │  └─ verify.sql              15 проверок ограничений и триггеров на живой СУБД
 ├─ api/
 │  ├─ openapi.yaml            спецификация OpenAPI 3.0.3, 29 операций
-│  └─ examples/               тела запросов для проверки на Mock-сервере
+│  ├─ index.html              читаемая версия спецификации для сайта
+│  ├─ examples/               тела запросов для проверки на Mock-сервере
+│  └─ mock/                   Mock-сервер: инструкция, коллекция запросов, протокол прогона
 ├─ mcp/
 │  ├─ server.py               MCP-сервер: 3 инструмента, 2 ресурса, 1 промпт
 │  ├─ make_mock_db.py         сборка mock-базы SQLite
@@ -134,7 +145,9 @@ LAB4/
 │  ├─ 03-files.md             диаграмма файлов приложения
 │  ├─ 04-spec.md              дополнительная спецификация
 │  ├─ 05-database.md          схема БД и словарь полей
-│  └─ 06-api.md               маршруты, конечные точки, коды ошибок
+│  ├─ 06-api.md               маршруты, конечные точки, коды ошибок, скриншоты Bruno
+│  ├─ 07-presentation.md      презентация проекта
+│  └─ issues.md               тексты задач для GitHub Projects
 └─ tools/
    ├─ gen_db.py               генератор DDL, словаря полей и ER из одной модели
    └─ push_wiki.ps1           публикация docs/ в GitHub Wiki

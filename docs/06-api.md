@@ -136,3 +136,26 @@
 возвращал пример «комментарий короче 10 символов» для всех пятнадцати операций,
 включая создание мероприятия. Пример вынесен в решение модерации, а общий
 компонент теперь отдаёт `VALIDATION_FAILED` с полем `title`.
+
+### Проверка контракта в Bruno
+
+Коллекция `api/mock/campus-events.postman_collection.json` импортирована в Bruno,
+переменная окружения `baseUrl` указывает на запущенный Mock-сервер. Ниже — три
+запроса, подтверждающие, что контракт отдаёт не только успешный ответ.
+
+**Создание мероприятия — `201 Created`.** `POST /events` с телом `hackathon` из
+`api/examples/`: возвращается карточка черновика с идентификаторами сессий.
+
+![Bruno: POST /events — 201 Created](https://1997yyyy.github.io/Human-Machine-Interface-Design-LAB4/assets/mock/bruno-201-created.png)
+
+**Запись при заполненной сессии — `409 Conflict`.** Заголовок `Prefer: code=409`
+фиксирует нужный ответ; тело ошибки содержит машинный код `NO_SEATS`, по которому
+интерфейс показывает кнопку «Встать в лист ожидания», а не текст ошибки.
+
+![Bruno: POST /sessions/{id}/registrations — 409 NO_SEATS](https://1997yyyy.github.io/Human-Machine-Interface-Design-LAB4/assets/mock/bruno-409-no-seats.png)
+
+**Очередь модерации чужой организации — `403 Forbidden`.** Токен валиден, но
+объект принадлежит другому организатору: `NOT_OWNER`, поля `field` нет, есть
+`traceId` для поиска в журнале.
+
+![Bruno: GET /moderation/requests — 403 NOT_OWNER](https://1997yyyy.github.io/Human-Machine-Interface-Design-LAB4/assets/mock/bruno-403-not-owner.png)
