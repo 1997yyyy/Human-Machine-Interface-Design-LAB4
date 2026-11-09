@@ -20,3 +20,7 @@ api/mock/.tool/
 .idea/
 .DS_Store
 Thumbs.db
+
+# Кэш сборки отчёта (пересобирается build_report.py)
+report/_preview/
+report/_toc.json

@@ -153,7 +153,15 @@ LAB4/
 │  ├─ 07-presentation.md      презентация проекта
 │  ├─ 08-mcp.md               MCP-сервер: инструменты, ресурсы, проверка в Inspector
 │  └─ issues.md               тексты задач для GitHub Projects
+├─ report/                    отчёт по лабораторной работе (docx и pdf)
 └─ tools/
    ├─ gen_db.py               генератор DDL, словаря полей и ER из одной модели
+   ├─ gen_site.py             сборка api/index.html и db/index.html для GitHub Pages
+   ├─ gen_deck.py             презентация проекта (12 слайдов, PDF)
+   ├─ gen_report.py           сборка отчёта: титульный лист, содержание, рисунки, таблицы
+   ├─ build_report.py         docx → pdf → номера страниц в содержании → docx → pdf
+   ├─ use-cases.puml          диаграмма вариантов использования
+   ├─ files-diagram.puml      диаграмма файлов приложения
+   ├─ wiki_pages.json         соответствие «файл в docs/ — страница вики»
    └─ push_wiki.ps1           публикация docs/ в GitHub Wiki
 ```

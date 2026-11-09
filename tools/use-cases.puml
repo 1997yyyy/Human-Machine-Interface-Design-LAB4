@@ -5,8 +5,10 @@
 ' чтобы диаграмма читалась на одном экране.
 !pragma layout smetana
 left to right direction
-scale 2
 skinparam shadowing false
+skinparam defaultFontSize 24
+skinparam ArrowFontSize 20
+skinparam packageTitleFontSize 26
 skinparam packageStyle rectangle
 skinparam usecase {
   BackgroundColor #EEEDFE
