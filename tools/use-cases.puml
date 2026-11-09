@@ -1,0 +1,110 @@
+@startuml t4-01-usecase-full
+' Задание 4. Полная диаграмма вариантов использования.
+' Отличия от t2-01: добавлены настройки уведомлений, назначение роли,
+' регистрация на месте. Группировка сокращена до пяти блоков,
+' чтобы диаграмма читалась на одном экране.
+!pragma layout smetana
+left to right direction
+scale 2
+skinparam shadowing false
+skinparam packageStyle rectangle
+skinparam usecase {
+  BackgroundColor #EEEDFE
+  BorderColor #534AB7
+  FontSize 11
+}
+skinparam actor {
+  BackgroundColor #E6F1FB
+  BorderColor #185FA5
+}
+skinparam rectangle {
+  BackgroundColor #FFFFFF
+  BorderColor #B4B2A9
+}
+
+actor "Гость" as Guest
+actor "Студент" as Student
+actor "Организатор" as Organizer
+actor "Администратор" as Admin
+actor "CAS / LDAP" as CAS <<внешняя>>
+actor "FCM / APNs" as Push <<внешняя>>
+
+Guest <|-- Student
+Guest <|-- Organizer
+Guest <|-- Admin
+
+rectangle "Каталог и поиск" {
+  usecase "Просмотреть афишу" as UC01
+  usecase "Найти мероприятие" as UC02
+  usecase "Открыть карточку" as UC04
+}
+
+rectangle "Регистрация" {
+  usecase "Записаться" as UC05
+  usecase "Отменить запись" as UC06
+  usecase "Встать в лист ожидания" as UC07
+  usecase "Принять место из очереди" as UC08
+  usecase "Показать билет" as UC09
+  usecase "Оценить мероприятие" as UC10
+}
+
+rectangle "Организация" {
+  usecase "Создать мероприятие" as UC11
+  usecase "Отправить на публикацию" as UC12
+  usecase "Отметить присутствие" as UC13
+  usecase "Просмотреть участников" as UC14
+  usecase "Экспортировать список" as UC15
+}
+
+rectangle "Модерация и аналитика" {
+  usecase "Рассмотреть заявку" as UC17
+  usecase "Управлять клубами" as UC19
+  usecase "Просмотреть отчёт" as UC20
+}
+
+rectangle "Профиль" {
+  usecase "Войти через CAS" as UC21
+  usecase "Настроить уведомления" as UC22
+  usecase "Назначить роль" as UC23
+}
+
+Guest --> UC01
+Guest --> UC02
+Guest --> UC04
+Guest --> UC21
+
+Student --> UC05
+Student --> UC06
+Student --> UC07
+Student --> UC08
+Student --> UC09
+Student --> UC10
+Student --> UC22
+
+Organizer --> UC11
+Organizer --> UC12
+Organizer --> UC13
+Organizer --> UC14
+Organizer --> UC15
+Organizer --> UC20
+Organizer --> UC22
+
+Admin --> UC17
+Admin --> UC19
+Admin --> UC20
+Admin --> UC23
+
+UC02 .> UC01 : <<extend>>
+UC05 .> UC04 : <<include>>
+UC05 .> UC21 : <<include>>
+UC07 .> UC05 : <<extend>>
+UC08 .> UC07 : <<include>>
+UC09 .> UC21 : <<include>>
+UC12 .> UC11 : <<include>>
+UC15 .> UC14 : <<include>>
+UC17 .> UC12 : <<include>>
+
+UC21 --> CAS
+UC05 --> Push
+
+@enduml

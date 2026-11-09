@@ -101,9 +101,9 @@ python mcp/test_mcp.py
 | Zeng Yaoxin | Задания 1–5: модель требований, физическая модель БД и DDL, маршруты и эндпоинты, OpenAPI и Mock-сервер, MCP-сервер |
 
 Проект ведётся в GitHub Projects: колонки To do / In progress / To check / Done,
-одна задача — один issue. Ветки: `main` (production), `development` (тестовая),
-рабочие ветки — от `development` с обязательным прохождением проверки перед
-слиянием в `main`.
+одна задача — один issue. Работа индивидуальная, поэтому коммиты идут в `main`
+небольшими шагами «одна задача — один коммит»; при доработке после проверки
+заводится отдельная ветка под задачу и сливается обратно после прогона тестов.
 
 ![Канбан GitHub Projects: шесть задач по заданиям 1–5 и документации](https://1997yyyy.github.io/Human-Machine-Interface-Design-LAB4/assets/projects-board.png)
 
@@ -119,10 +119,13 @@ LAB4/
 ├─ requirements.txt           зависимости Python для MCP-сервера
 ├─ index.html                 сайт GitHub Pages
 ├─ assets/                    изображения для README, вики и сайта
+│  ├─ use-cases.png           диаграмма вариантов использования (20 UC)
+│  ├─ files-diagram.png       диаграмма файлов репозитория
 │  ├─ erd-physical.png        ER-диаграмма физической модели
 │  ├─ presentation.pdf        презентация проекта, 12 слайдов
 │  ├─ projects-board.png      канбан GitHub Projects
-│  └─ mock/                   скриншоты ответов Mock-сервера в Bruno (201, 409, 403)
+│  ├─ mock/                   скриншоты ответов Mock-сервера в Bruno (201, 409, 403)
+│  └─ mcp/                    снимок MCP Inspector
 ├─ db/
 │  ├─ erd.puml                исходник ER-диаграммы
 │  ├─ schema.sql              DDL: 14 таблиц, 13 перечислений, индексы, триггеры

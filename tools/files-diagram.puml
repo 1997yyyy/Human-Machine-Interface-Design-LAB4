@@ -1,0 +1,53 @@
+@startuml files-diagram
+' Диаграмма файлов репозитория ЛР № 4 (структура каталогов, без потоков данных).
+' Рендер: java -jar plantuml.jar -charset UTF-8 -tpng -o ../assets tools/files-diagram.puml
+scale 2
+skinparam shadowing false
+skinparam packageStyle rectangle
+skinparam defaultFontName Segoe UI
+skinparam defaultFontSize 11
+skinparam rectangle {
+  BackgroundColor #FFFFFF
+  BorderColor #8A8A80
+  FontSize 10
+}
+skinparam package {
+  BackgroundColor #F7F6F1
+  BorderColor #C9C7BC
+  FontSize 12
+  FontStyle bold
+}
+
+rectangle "**LAB4/** — репозиторий лабораторной работы\nREADME.md · index.html · docker-compose.yml · requirements.txt" as root
+
+package "docs/ — 8 страниц вики" {
+  rectangle "01-home · 02-requirements · 03-files · 04-spec\n05-database · 06-api · 07-presentation · 08-mcp\nissues.md — тексты задач для Projects" as docs
+}
+
+package "api/ — контракт" {
+  rectangle "openapi.yaml — 29 операций, 28 схем\nindex.html — читаемая версия\nexamples/ — 5 тел запросов\nmock/ — smoke.py, transcript.md, коллекция Bruno, README" as api
+}
+
+package "db/ — физическая модель" {
+  rectangle "schema.sql — 14 таблиц, 13 перечислений, 3 триггера\nseed.sql — 34 строки данных\nverify.sql — 15 проверок на живой СУБД\nerd.puml · index.html" as db
+}
+
+package "mcp/ — сервер для ассистента" {
+  rectangle "server.py — 3 инструмента, 2 ресурса, 1 промпт\nmake_mock_db.py — mock-база SQLite\ntest_mcp.py — 10 сценариев\ninspector-cli.md — протокол проверки" as mcp
+}
+
+package "tools/ — генераторы артефактов" {
+  rectangle "gen_db.py — модель → DDL, словарь, ER\ngen_site.py — openapi → HTML\ngen_deck.py — презентация → PDF\npush_wiki.ps1 + wiki_pages.json\nuse-cases.puml · files-diagram.puml" as tools
+}
+
+package "assets/ — изображения и вложения" {
+  rectangle "use-cases.png — варианты использования\nfiles-diagram.png — эта диаграмма\nerd-physical.png — ER-диаграмма\npresentation.pdf — 12 слайдов\nprojects-board.png · mock/*.png · mcp/*.png" as assets
+}
+
+root -[hidden]down- docs
+docs -[hidden]down- api
+api -[hidden]down- db
+db -[hidden]down- mcp
+mcp -[hidden]down- tools
+tools -[hidden]down- assets
+@enduml

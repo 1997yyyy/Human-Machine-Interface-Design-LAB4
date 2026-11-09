@@ -4,6 +4,8 @@
 сервисы → PostgreSQL, плюс отдельный процесс-воркер уведомлений. В этой работе
 появились каталоги `api/`, `mcp/` и `db/` — они и есть новая часть приложения.
 
+![Диаграмма файлов репозитория: каталоги и их содержимое](../assets/files-diagram.png)
+
 ## 1. Файлы репозитория
 
 ```
@@ -13,13 +15,23 @@ LAB4/
 ├─ requirements.txt           mcp, openapi-spec-validator, PyYAML
 ├─ index.html                 сайт GitHub Pages
 ├─ assets/
-│  └─ erd-physical.png        ER-диаграмма физической модели
+│  ├─ use-cases.png           диаграмма вариантов использования
+│  ├─ files-diagram.png       эта диаграмма
+│  ├─ erd-physical.png        ER-диаграмма физической модели
+│  ├─ presentation.pdf        презентация проекта, 12 слайдов
+│  ├─ projects-board.png      канбан GitHub Projects
+│  ├─ mock/                   ответы Mock-сервера, снятые в Bruno
+│  └─ mcp/                    снимок MCP Inspector
 ├─ db/
 │  ├─ erd.puml                исходник ER (PlantUML)
 │  ├─ schema.sql              DDL: 14 таблиц, 13 перечислений, индексы, 3 триггера
+│  ├─ verify.sql              15 проверок ограничений на живой СУБД
+│  ├─ index.html              читаемая версия схемы
 │  └─ seed.sql                демонстрационные данные
 ├─ api/
 │  ├─ openapi.yaml            OpenAPI 3.0.3: 25 путей, 29 операций, 28 схем
+│  ├─ index.html              читаемая версия спецификации
+│  ├─ mock/                   прогон Prism: smoke.py, transcript.md, коллекция Bruno
 │  └─ examples/               тела запросов для Mock-сервера
 │     ├─ registration-create.json
 │     ├─ checkin-batch.json
@@ -30,11 +42,18 @@ LAB4/
 │  ├─ server.py               MCP-сервер: инструменты, ресурсы, промпт
 │  ├─ make_mock_db.py         сборка mock-базы SQLite из нуля
 │  ├─ test_mcp.py             проверка без LLM: 10 сценариев
+│  ├─ inspector-cli.md        протокол проверки через MCP Inspector
 │  ├─ campus.db               mock-база (генерируется, в git не нужна)
 │  └─ README.md               инструкция по развёртыванию
-├─ docs/                      страницы вики: 01…06
+├─ docs/                      страницы вики: 01…08 и issues.md
 └─ tools/
-   └─ gen_db.py               генератор DDL, словаря полей и ER
+   ├─ gen_db.py               генератор DDL, словаря полей и ER
+   ├─ gen_site.py             читаемые HTML-версии спецификации и схемы
+   ├─ gen_deck.py             презентация проекта
+   ├─ push_wiki.ps1           публикация docs/ в вики
+   ├─ wiki_pages.json         соответствие «файл docs/ → страница вики»
+   ├─ use-cases.puml          исходник диаграммы вариантов использования
+   └─ files-diagram.puml      исходник этой диаграммы
 ```
 
 ## 2. Соответствие «каталог — слой архитектуры»
